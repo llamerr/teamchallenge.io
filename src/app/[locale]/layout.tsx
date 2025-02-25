@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
-import { DemoBadge } from '@/components/DemoBadge';
 import arcjet, { detectBot, request } from '@/libs/Arcjet';
 import { Env } from '@/libs/Env';
 import { routing } from '@/libs/i18nNavigation';
+import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import '@mantine/core/styles.css';
 import '@/styles/global.css';
 
 export const metadata: Metadata = {
@@ -86,15 +87,19 @@ export default async function RootLayout(props: {
   // which dynamically adds a `style` attribute to the body tag.
 
   return (
-    <html lang={locale}>
+    <html lang={locale} {...mantineHtmlProps}>
+      <head>
+        <ColorSchemeScript />
+      </head>
       <body suppressHydrationWarning>
         <NextIntlClientProvider
           locale={locale}
           messages={messages}
         >
-          {props.children}
-
-          <DemoBadge />
+          <MantineProvider>
+            {props.children}
+            {/* <DemoBadge /> */}
+          </MantineProvider>
         </NextIntlClientProvider>
       </body>
     </html>
