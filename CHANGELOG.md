@@ -1,3 +1,10 @@
+# 1.0.0 (2025-02-25)
+
+
+### Features
+
+* add mantine ([75257b6](https://github.com/llamerr/teamchallenge.io/commit/75257b69da59b265f67da0e308b51e6ac74a8b41))
+
 # [3.63.0](https://github.com/ixartz/Next-js-Boilerplate/compare/v3.62.1...v3.63.0) (2025-02-25)
 
 
