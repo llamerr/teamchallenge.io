@@ -1,0 +1,45 @@
+Table users {
+  id uuid [pk]
+}
+
+Table teams {
+  id uuid [pk]
+  project_id uuid [ref: > projects.id] 
+}
+
+Table projects {
+  id uuid [pk]
+}
+
+Table artifacts {
+  id uuid [pk]
+}
+
+Table news {
+  id uuid [pk]
+}
+
+Table notifications {
+  id uuid [pk]
+  news_id uuid [ref: > news.id]
+}
+
+Table u_to_t {
+  user_id uuid [ref: > users.id]
+  team_id uuid [ref: > teams.id]
+}
+
+Table a_to_p {
+  artifact_id uuid [ref: > artifacts.id]
+  project_id uuid [ref: > projects.id]
+}
+
+Table a_to_t {
+  artifact_id uuid [ref: > artifacts.id]
+  team_id uuid [ref: > teams.id]
+}
+
+Table n_to_u {
+  notification_id uuid [ref: > notifications.id]
+  user_id uuid [ref: > users.id]
+}
