@@ -1,47 +1,47 @@
 CREATE TABLE "users" (
-  "id" uuid PRIMARY KEY
+  "id" SERIAL PRIMARY KEY
 );
 
 CREATE TABLE "teams" (
-  "id" uuid PRIMARY KEY,
-  "project_id" uuid
+  "id" SERIAL PRIMARY KEY,
+  "project_id" integer
 );
 
 CREATE TABLE "projects" (
-  "id" uuid PRIMARY KEY
+  "id" SERIAL PRIMARY KEY
 );
 
 CREATE TABLE "artifacts" (
-  "id" uuid PRIMARY KEY
+  "id" SERIAL PRIMARY KEY
 );
 
 CREATE TABLE "news" (
-  "id" uuid PRIMARY KEY
+  "id" SERIAL PRIMARY KEY
 );
 
 CREATE TABLE "notifications" (
-  "id" uuid PRIMARY KEY,
-  "news_id" uuid
+  "id" SERIAL PRIMARY KEY,
+  "news_id" integer
 );
 
 CREATE TABLE "u_to_t" (
-  "user_id" uuid,
-  "team_id" uuid
+  "user_id" integer,
+  "team_id" integer
 );
 
 CREATE TABLE "a_to_p" (
-  "artifact_id" uuid,
-  "project_id" uuid
+  "artifact_id" integer,
+  "project_id" integer
 );
 
 CREATE TABLE "a_to_t" (
-  "artifact_id" uuid,
-  "team_id" uuid
+  "artifact_id" integer,
+  "team_id" integer
 );
 
 CREATE TABLE "n_to_u" (
-  "notification_id" uuid,
-  "user_id" uuid
+  "notification_id" integer,
+  "user_id" integer
 );
 
 ALTER TABLE "teams" ADD FOREIGN KEY ("project_id") REFERENCES "projects" ("id");

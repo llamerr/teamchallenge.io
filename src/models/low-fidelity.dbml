@@ -1,45 +1,45 @@
 Table users {
-  id uuid [pk]
+  id serial [pk, increment]
 }
 
 Table teams {
-  id uuid [pk]
-  project_id uuid [ref: > projects.id] 
+  id serial [pk, increment]
+  project_id integer [ref: > projects.id] 
 }
 
 Table projects {
-  id uuid [pk]
+  id serial [pk, increment]
 }
 
 Table artifacts {
-  id uuid [pk]
+  id serial [pk, increment]
 }
 
 Table news {
-  id uuid [pk]
+  id serial [pk, increment]
 }
 
 Table notifications {
-  id uuid [pk]
-  news_id uuid [ref: > news.id]
+  id serial [pk, increment]
+  news_id integer [ref: > news.id]
 }
 
 Table u_to_t {
-  user_id uuid [ref: > users.id]
-  team_id uuid [ref: > teams.id]
+  user_id integer [ref: > users.id]
+  team_id integer [ref: > teams.id]
 }
 
 Table a_to_p {
-  artifact_id uuid [ref: > artifacts.id]
-  project_id uuid [ref: > projects.id]
+  artifact_id integer [ref: > artifacts.id]
+  project_id integer [ref: > projects.id]
 }
 
 Table a_to_t {
-  artifact_id uuid [ref: > artifacts.id]
-  team_id uuid [ref: > teams.id]
+  artifact_id integer [ref: > artifacts.id]
+  team_id integer [ref: > teams.id]
 }
 
 Table n_to_u {
-  notification_id uuid [ref: > notifications.id]
-  user_id uuid [ref: > users.id]
+  notification_id integer [ref: > notifications.id]
+  user_id integer [ref: > users.id]
 }
