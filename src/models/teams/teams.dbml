@@ -1,0 +1,68 @@
+Table users {
+  id serial [pk, increment]
+}
+
+Table teams {
+  id serial [pk, increment]
+  name varchar(100) [unique]
+  project_id integer [ref: > projects.id]
+  title varchar(255) [not null]
+  description text
+  long_description text 
+  progress integer
+  start_date date
+  status varchar(50)
+}
+
+Table users_to_teams {
+  user_id integer [ref: > users.id]
+  team_id integer [ref: > teams.id]
+  role varchar(50)
+  join_date date
+  status varchar(50)
+
+  indexes {
+    (user_id, team_id, role) [pk]
+  }
+}
+
+Table teams_to_languages {
+  team_id integer [ref: > teams.id]
+  language_id integer [ref: > languages.id]
+
+  indexes {
+    (team_id, language_id) [pk]
+  }
+}
+
+Table recent_activities {
+  id serial [pk, increment]
+  team_id integer [ref: > teams.id]
+  type varchar(50)
+  user varchar(100)
+  action text
+  date timestamp
+  details text
+}
+
+Table projects {
+  id serial [pk, increment]
+}
+
+Table artifacts {
+  id serial [pk, increment]
+}
+
+Table artifacts_to_teams {
+  artifact_id integer [ref: > artifacts.id]
+  team_id integer [ref: > teams.id]
+  added_at timestamp [default: `now()`]
+
+  indexes {
+    (artifact_id, team_id) [pk]
+  }
+}
+
+Table languages {
+  id serial [pk, increment]
+}

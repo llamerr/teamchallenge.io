@@ -1,0 +1,7 @@
+-- Seed teams
+INSERT INTO teams (name, project_id, title, description, long_description, progress, start_date, status) VALUES 
+('E-commerce Team', (SELECT id FROM projects WHERE title = 'E-commerce Platform'), 'E-commerce Platform Team', 'Team building an e-commerce platform', 'Developing a full-stack e-commerce platform with shopping cart, payment processing, and user management', 25, '2025-01-15', 'active'),
+('Blog Team', (SELECT id FROM projects WHERE title = 'Blog Platform'), 'Blog Platform Team', 'Team creating a modern blog platform', 'Building a scalable blog platform with markdown support, comments, and user authentication', 15, '2025-02-01', 'active'),
+('API Gateway Team', (SELECT id FROM projects WHERE title = 'API Gateway Service'), 'API Gateway Service Team', 'Team developing an API gateway service', 'Creating a high-performance API gateway with rate limiting, authentication, and request routing', 30, '2025-01-20', 'active'),
+('Game Development Team', (SELECT id FROM projects WHERE title = '2D Platformer Game'), '2D Platformer Game Team', 'Team building a 2D platformer game', 'Developing a 2D platformer game with physics, animations, and level design', 20, '2025-02-05', 'active'),
+('Finance Tracker Team', (SELECT id FROM projects WHERE title = 'Personal Finance Tracker'), 'Personal Finance Tracker Team', 'Team creating a personal finance tracker', 'Building a personal finance tracker with budgeting, expense tracking, and visualization', 10, '2025-02-10', 'active');
