@@ -1,16 +1,25 @@
-import type { AnyPgColumn } from 'drizzle-orm/pg-core';
-import { bigint, boolean, integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+import { boolean, date, integer, pgTable, primaryKey, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { artifactsTable } from './artifacts';
+import { languagesTable } from './languages';
+import { notificationsTable } from './notifications';
+import { projectsTable } from './projects';
+import { rolesTable } from './roles';
+import { teamsTable } from './teams';
+import { technologiesTable } from './technologies';
+import { usersTable } from './users';
 
-// This file defines the structure of your database tables using the Drizzle ORM.
+export * from './artifacts';
+export * from './languages';
+export * from './news';
+export * from './notifications';
+export * from './projects';
+export * from './roles';
+export * from './teams';
+export * from './technologies';
+export * from './users';
 
-// To modify the database schema:
-// 1. Update this file with your desired changes.
-// 2. Generate a new migration by running: `npm run db:generate`
-
-// The generated migration file will reflect your schema changes.
-// The migration is automatically applied during the next database interaction,
-// so there's no need to run it manually or restart the Next.js server.
-
+// ------------------- Counter -------------------
 export const counterSchema = pgTable('counter', {
   id: serial('id').primaryKey(),
   count: integer('count').default(0),
@@ -21,108 +30,175 @@ export const counterSchema = pgTable('counter', {
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 });
 
-export const usersTable = pgTable('users', {
-  id: serial('id').primaryKey(),
-});
-
-export const teamsTable = pgTable('teams', {
-  id: serial('id').primaryKey(),
-  projectId: integer('project_id').references(() => projectsTable.id),
-});
-
-export const projectsTable = pgTable('projects', {
-  id: serial('id').primaryKey(),
-});
-
-export const artifactCategoriesTable = pgTable('artifact_categories', {
-  id: serial('id').primaryKey(),
-  slug: varchar('slug', { length: 50 }).unique(),
-  name: varchar('name', { length: 100 }),
-  description: text('description'),
-  icon: varchar('icon', { length: 50 }),
-});
-
-export const artifactsTable = pgTable('artifacts', {
-  id: serial('id').primaryKey(),
-  rootArtifactId: integer('root_artifact_id').references((): AnyPgColumn => artifactsTable.id),
-  parentVersionId: integer('parent_version_id').references((): AnyPgColumn => artifactsTable.id),
-
-  title: varchar('title', { length: 255 }).notNull(),
-  description: text('description'),
-  categoryId: integer('category_id').references(() => artifactCategoriesTable.id),
-
-  authorId: integer('author_id').references(() => usersTable.id),
-  fileSize: bigint('file_size', { mode: 'number' }),
-  filePath: varchar('file_path', { length: 500 }),
-
-  dateCreated: timestamp('date_created').defaultNow(),
-  lastUpdated: timestamp('last_updated').defaultNow(),
-
-  downloads: integer('downloads').default(0),
-  views: integer('views').default(0),
-
-  license: varchar('license', { length: 50 }),
-
-  versionNumber: varchar('version_number', { length: 50 }).notNull(),
-  versionType: varchar('version_type', { length: 20 }), // 'original', 'fork', 'update', 'collaborative'
-
-  isCurrent: boolean('is_current').default(false),
-
-  status: varchar('status', { length: 20 }), // 'draft', 'published', 'archived'
-});
-
-export const artifactVersionChangesTable = pgTable('artifact_version_changes', {
-  id: serial('id').primaryKey(),
-  artifactId: integer('artifact_id').references(() => artifactsTable.id),
-  userId: integer('user_id').references(() => usersTable.id),
-
-  changeType: varchar('change_type', { length: 50 }), // 'title', 'description', 'file'
-  oldValue: text('old_value'),
-  newValue: text('new_value'),
-
-  changedAt: timestamp('changed_at').defaultNow(),
-  changeDescription: text('change_description'),
-});
-
-export const newsTable = pgTable('news', {
-  id: serial('id').primaryKey(),
-});
-
-export const notificationsTable = pgTable('notifications', {
-  id: serial('id').primaryKey(),
-  newsId: integer('news_id').references(() => newsTable.id),
-});
-
-export const userToTeamTable = pgTable('u_to_t', {
-  userId: integer('user_id').references(() => usersTable.id),
-  teamId: integer('team_id').references(() => teamsTable.id),
-});
-
-export const artifactToProjectTable = pgTable('a_to_p', {
-  artifactId: integer('artifact_id').references(() => artifactsTable.id),
-  projectId: integer('project_id').references(() => projectsTable.id),
-  addedAt: timestamp('added_at').defaultNow(),
-});
-
-export const artifactToTeamTable = pgTable('a_to_t', {
-  artifactId: integer('artifact_id').references(() => artifactsTable.id),
-  teamId: integer('team_id').references(() => teamsTable.id),
-  addedAt: timestamp('added_at').defaultNow(),
-});
-
-export const artifactTagsTable = pgTable('artifact_tags', {
-  id: serial('id').primaryKey(),
-  name: varchar('name', { length: 50 }).unique(),
-  description: text('description'),
-});
-
-export const artifactToTagTable = pgTable('a_to_tags', {
-  artifactId: integer('artifact_id').references(() => artifactsTable.id),
-  tagId: integer('tag_id').references(() => artifactTagsTable.id),
-  addedAt: timestamp('added_at').defaultNow(),
-});
-
-export const notificationToUserTable = pgTable('n_to_u', {
+// ------------------- Notifications to Users -------------------
+export const notificationsToUsersTable = pgTable('notifications_to_users', {
   notificationId: integer('notification_id').references(() => notificationsTable.id),
   userId: integer('user_id').references(() => usersTable.id),
-});
+}, t => [primaryKey({ columns: [t.notificationId, t.userId] })]);
+export const notificationsToUsersRelations = relations(notificationsToUsersTable, ({ one }) => ({
+  notification: one(notificationsTable, {
+    fields: [notificationsToUsersTable.notificationId],
+    references: [notificationsTable.id],
+  }),
+  user: one(usersTable, {
+    fields: [notificationsToUsersTable.userId],
+    references: [usersTable.id],
+  }),
+}));
+
+// ------------------- Artifacts to Teams -------------------
+export const artifactsToTeamsTable = pgTable('artifacts_to_teams', {
+  artifactId: integer('artifact_id').references(() => artifactsTable.id),
+  teamId: integer('team_id').references(() => teamsTable.id),
+  addedAt: timestamp('added_at').defaultNow(),
+}, t => [primaryKey({ columns: [t.artifactId, t.teamId] })]);
+export const artifactsToTeamsRelations = relations(artifactsToTeamsTable, ({ one }) => ({
+  artifact: one(artifactsTable, {
+    fields: [artifactsToTeamsTable.artifactId],
+    references: [artifactsTable.id],
+  }),
+  team: one(teamsTable, {
+    fields: [artifactsToTeamsTable.teamId],
+    references: [teamsTable.id],
+  }),
+}));
+
+// ------------------- Artifact to Project -------------------
+export const artifactsToProjectsTable = pgTable('artifacts_to_projects', {
+  artifactId: integer('artifact_id').references(() => artifactsTable.id),
+  projectId: integer('project_id').references(() => projectsTable.id),
+  addedAt: timestamp('added_at').defaultNow(),
+}, t => [primaryKey({ columns: [t.artifactId, t.projectId] })]);
+export const artifactToProjectRelations = relations(artifactsToProjectsTable, ({ one }) => ({
+  artifact: one(artifactsTable, {
+    fields: [artifactsToProjectsTable.artifactId],
+    references: [artifactsTable.id],
+  }),
+  project: one(projectsTable, {
+    fields: [artifactsToProjectsTable.projectId],
+    references: [projectsTable.id],
+  }),
+}));
+
+// ------------------- Projects to Roles -------------------
+export const projectsToRolesTable = pgTable('projects_to_roles', {
+  projectId: integer('project_id').references(() => projectsTable.id),
+  roleId: integer('role_id').references(() => rolesTable.id),
+  count: integer('count'),
+  specificSkills: text('specific_skills').array(),
+}, t => [primaryKey({ columns: [t.projectId, t.roleId] })]);
+export const projectsToRolesRelations = relations(projectsToRolesTable, ({ one }) => ({
+  project: one(projectsTable, {
+    fields: [projectsToRolesTable.projectId],
+    references: [projectsTable.id],
+  }),
+  role: one(rolesTable, {
+    fields: [projectsToRolesTable.roleId],
+    references: [rolesTable.id],
+  }),
+}));
+
+// ------------------- Projects to Technologies -------------------
+export const projectsToTechnologiesTable = pgTable('projects_to_technologies', {
+  projectId: integer('project_id').references(() => projectsTable.id),
+  technologyId: integer('technology_id').references(() => technologiesTable.id),
+  primary: boolean('primary').default(false),
+}, t => [primaryKey({ columns: [t.projectId, t.technologyId] })]);
+export const projectsToTechnologiesRelations = relations(projectsToTechnologiesTable, ({ one }) => ({
+  project: one(projectsTable, {
+    fields: [projectsToTechnologiesTable.projectId],
+    references: [projectsTable.id],
+  }),
+  technology: one(technologiesTable, {
+    fields: [projectsToTechnologiesTable.technologyId],
+    references: [technologiesTable.id],
+  }),
+}));
+
+// ------------------- Users to Languages -------------------
+export const usersToLanguagesTable = pgTable('users_to_languages', {
+  userId: integer('user_id').references(() => usersTable.id),
+  languageId: integer('language_id').references(() => languagesTable.id),
+  proficiencyLevel: varchar('proficiency_level', { length: 50 }), // 'Basic', 'Intermediate', 'Fluent'
+}, t => ({ primaryKey: [t.languageId, t.userId] }));
+export const usersToLanguagesRelations = relations(usersToLanguagesTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [usersToLanguagesTable.userId],
+    references: [usersTable.id],
+  }),
+  language: one(languagesTable, {
+    fields: [usersToLanguagesTable.languageId],
+    references: [languagesTable.id],
+  }),
+}));
+
+// ------------------- Users to Roles -------------------
+export const usersToRolesTable = pgTable('users_to_roles', {
+  userId: integer('user_id').references(() => usersTable.id),
+  roleId: integer('role_id').references(() => rolesTable.id),
+}, t => [primaryKey({ columns: [t.userId, t.roleId] })]);
+export const usersToRolesRelations = relations(usersToRolesTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [usersToRolesTable.userId],
+    references: [usersTable.id],
+  }),
+  role: one(rolesTable, {
+    fields: [usersToRolesTable.roleId],
+    references: [rolesTable.id],
+  }),
+}));
+
+// ------------------- Users to Technologies -------------------
+export const usersToTechnologiesTable = pgTable('users_to_technologies', {
+  userId: integer('user_id').references(() => usersTable.id),
+  technologyId: integer('technology_id').references(() => technologiesTable.id),
+}, t => [primaryKey({ columns: [t.userId, t.technologyId] })]);
+export const usersToTechnologiesRelations = relations(usersToTechnologiesTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [usersToTechnologiesTable.userId],
+    references: [usersTable.id],
+  }),
+  technology: one(technologiesTable, {
+    fields: [usersToTechnologiesTable.technologyId],
+    references: [technologiesTable.id],
+  }),
+}));
+
+// ------------------- Teams to Languages -------------------
+export const teamsToLanguagesTable = pgTable('teams_to_languages', {
+  teamId: integer('team_id').references(() => teamsTable.id),
+  languageId: integer('language_id').references(() => languagesTable.id),
+}, t => ({ primaryKey: [t.teamId, t.languageId] }));
+export const teamsToLanguagesRelations = relations(teamsToLanguagesTable, ({ one }) => ({
+  team: one(teamsTable, {
+    fields: [teamsToLanguagesTable.teamId],
+    references: [teamsTable.id],
+  }),
+  language: one(languagesTable, {
+    fields: [teamsToLanguagesTable.languageId],
+    references: [languagesTable.id],
+  }),
+}));
+
+// ------------------- Users to Teams -------------------
+export const usersToTeamsTable = pgTable('users_to_teams', {
+  userId: integer('user_id').references(() => usersTable.id),
+  teamId: integer('team_id').references(() => teamsTable.id),
+  role: varchar('role', { length: 50 }),
+  joinDate: date('join_date'),
+  status: varchar('status', { length: 50 }),
+}, t => ({ primaryKey: [t.userId, t.teamId, t.role] }));
+export const usersToTeamsRelations = relations(usersToTeamsTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [usersToTeamsTable.userId],
+    references: [usersTable.id],
+  }),
+  team: one(teamsTable, {
+    fields: [usersToTeamsTable.teamId],
+    references: [teamsTable.id],
+  }),
+  role: one(rolesTable, {
+    fields: [usersToTeamsTable.role],
+    references: [rolesTable.id],
+  }),
+}));

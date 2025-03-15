@@ -2,39 +2,30 @@
 
 import { AITextInput } from '@/components/ai-text-input';
 import { AITextarea } from '@/components/ai-textarea';
-import { db } from '@/lib/db';
-import { artifactsTable, artifactsToArtifactTagsTable, artifactTagsTable } from '@/models/artifacts';
-import { artifactsToProjectsTable } from '@/models/Schema';
-import { currentUser } from '@clerk/nextjs/server';
-import { Avatar, Badge, Box, Button, Card, Center, Container, Group, Paper, Select, Stack, Stepper, Text, TextInput, Title, useCombobox } from '@mantine/core';
-import { desc, eq } from 'drizzle-orm';
-import { ArrowLeft, Plus, Upload, X } from 'lucide-react';
+import { Avatar, Badge, Box, Button, Card, Center, Checkbox, Combobox, Container, Divider, Flex, Group, InputBase, Paper, Radio, Select, Stack, Stepper, Switch, Text, TextInput, Title, useCombobox } from '@mantine/core';
+import { ArrowLeft, Check, Plus, Upload, X } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useQuery } from 'react-query';
 
-// Fetch artifacts from database
-async function fetchArtifacts() {
-  try {
-    const artifacts = await db.query.artifactsTable.findMany({
-      with: {
-        category: true,
-        projects: true,
-      },
-      orderBy: desc(artifactsTable.dateCreated),
-      limit: 10,
-    });
+// Mock data for projects
+const projects = [
+  { id: '1', title: 'E-commerce Platform' },
+  { id: '2', title: 'Real-time Chat Application' },
+  { id: '3', title: 'Task Management System' },
+  { id: '4', title: 'Mobile Weather App' },
+  { id: '5', title: 'Blog Platform' },
+];
 
-    return artifacts;
-  } catch (error) {
-    console.error('Error fetching artifacts:', error);
-    return [];
-  }
-}
+// License options
+const licenses = [
+  { value: 'mit', label: 'MIT License' },
+  { value: 'apache', label: 'Apache License 2.0' },
+  { value: 'gpl', label: 'GNU GPL v3' },
+  { value: 'bsd', label: 'BSD License' },
+  { value: 'cc0', label: 'Creative Commons Zero v1.0' },
+];
 
 export default function CreateArtifactPage() {
-  const router = useRouter();
   const [step, setStep] = useState(0); // Mantine Stepper is 0-indexed
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -68,72 +59,7 @@ export default function CreateArtifactPage() {
     );
   };
 
-  const { data: projects } = useGetProjectsQuery();
-  const { data: licenses } = useGetLicensesQuery();
-  const filteredProjects = projects?.filter(project => !selectedProjects.includes(project.id));
-
-  // Replace mock queries with real database queries
-  const { data: categories } = useQuery({
-    queryKey: ['artifactCategories'],
-    queryFn: async () => {
-      const categories = await db.query.artifactCategoriesTable.findMany();
-      return categories;
-    },
-  });
-
-  const handleSubmit = async () => {
-    try {
-      // Insert the new artifact
-      const [newArtifact] = await db.insert(artifactsTable).values({
-        title,
-        description,
-        categoryId: selectedCategory, // Add this state
-        authorId: currentUser.id, // Add user context
-        versionNumber: '1.0.0', // Initial version
-        versionType: 'original',
-        isCurrent: true,
-        status: 'published',
-      }).returning();
-
-      // Insert tags
-      for (const tagName of tags) {
-        // First find or create the tag
-        let [tag] = await db.select()
-          .from(artifactTagsTable)
-          .where(eq(artifactTagsTable.name, tagName))
-          .limit(1);
-
-        if (!tag) {
-          [tag] = await db.insert(artifactTagsTable)
-            .values({ name: tagName })
-            .returning();
-        }
-
-        // Link tag to artifact
-        await db.insert(artifactsToArtifactTagsTable)
-          .values({
-            artifactId: newArtifact.id,
-            artifactTagId: tag.id,
-          });
-      }
-
-      // Link projects if any
-      if (selectedProjects.length > 0) {
-        await db.insert(artifactsToProjectsTable)
-          .values(
-            selectedProjects.map(projectId => ({
-              artifactId: newArtifact.id,
-              projectId,
-            })),
-          );
-      }
-
-      router.push(`/artifacts/${newArtifact.id}`);
-    } catch (error) {
-      console.error('Error creating artifact:', error);
-      // Add error handling UI
-    }
-  };
+  const filteredProjects = projects.filter(project => !selectedProjects.includes(project.id));
 
   return (
     <Container size="md" py="xl">
@@ -205,10 +131,12 @@ export default function CreateArtifactPage() {
             <Select
               label="Category"
               placeholder="Select category"
-              data={categories?.map(cat => ({
-                value: cat.id.toString(),
-                label: cat.name,
-              })) || []}
+              data={[
+                { value: 'design-doc', label: 'Design Document' },
+                { value: 'ui-design', label: 'UI Design' },
+                { value: 'database', label: 'Database Schema' },
+                { value: 'presentation', label: 'Presentation' },
+              ]}
               required
             />
 
@@ -310,7 +238,59 @@ export default function CreateArtifactPage() {
           </Card.Section>
 
           <Stack mt="md" gap="md">
-            {/* Additional details form fields */}
+            <TextInput label="Version" placeholder="e.g., 1.0.0" />
+
+            <Select
+              label="License"
+              placeholder="Choose a license"
+              data={licenses.map(license => ({ value: license.value, label: license.label }))}
+            />
+
+            <Divider my="md" />
+
+            <Group justify="space-between">
+              <Box>
+                <Text fw={500} size="sm">
+                  Visibility
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Choose who can see your artifact
+                </Text>
+              </Box>
+              <Switch
+                checked={isPublic}
+                onChange={event => setIsPublic(event.currentTarget.checked)}
+                label={isPublic ? 'Public' : 'Private'}
+                labelPosition="left"
+              />
+            </Group>
+
+            <Radio.Group value={visibilityValue} onChange={setVisibilityValue}>
+              <Stack mt="xs">
+                <Radio
+                  value="anyone"
+                  label={(
+                    <Box>
+                      <Text size="sm">Anyone with the link</Text>
+                      <Text size="xs" c="dimmed">
+                        Anyone with the link can view and download this artifact
+                      </Text>
+                    </Box>
+                  )}
+                />
+                <Radio
+                  value="restricted"
+                  label={(
+                    <Box>
+                      <Text size="sm">Restricted access</Text>
+                      <Text size="xs" c="dimmed">
+                        Only project members can view and download this artifact
+                      </Text>
+                    </Box>
+                  )}
+                />
+              </Stack>
+            </Radio.Group>
           </Stack>
 
           <Group justify="space-between" mt="xl">
@@ -323,14 +303,87 @@ export default function CreateArtifactPage() {
       )}
 
       {step === 2 && (
-        <Group justify="space-between" mt="xl">
-          <Button variant="subtle" onClick={() => setStep(1)}>
-            Back
-          </Button>
-          <Button onClick={handleSubmit}>
-            Create Artifact
-          </Button>
-        </Group>
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Card.Section withBorder inheritPadding py="md">
+            <Title order={3}>Link to Projects</Title>
+            <Text size="sm" c="dimmed">
+              Select the projects that will use this artifact
+            </Text>
+          </Card.Section>
+
+          <Stack mt="md" gap="md">
+            <Stack gap="xs">
+              {projects.map(project => (
+                <Checkbox
+                  key={project.id}
+                  label={project.title}
+                  checked={selectedProjects.includes(project.id)}
+                  onChange={() => handleProjectToggle(project.id)}
+                />
+              ))}
+            </Stack>
+
+            <Box>
+              <Text fw={500} size="sm" mb="xs">
+                Search Projects
+              </Text>
+              <Combobox
+                store={combobox}
+                onOptionSubmit={(val) => {
+                  handleProjectToggle(val);
+                  combobox.closeDropdown();
+                }}
+              >
+                <Combobox.Target>
+                  <InputBase
+                    component="button"
+                    type="button"
+                    pointer
+                    rightSection={<Combobox.Chevron />}
+                    onClick={() => combobox.toggleDropdown()}
+                    rightSectionPointerEvents="none"
+                    multiline
+                  >
+                    <Group gap="xs">
+                      <Text size="sm">Search for more projects...</Text>
+                      <Plus size={16} />
+                    </Group>
+                  </InputBase>
+                </Combobox.Target>
+
+                <Combobox.Dropdown>
+                  <Combobox.Search placeholder="Search projects..." />
+                  <Combobox.Options>
+                    {filteredProjects.length > 0
+                      ? (
+                          filteredProjects.map(project => (
+                            <Combobox.Option value={project.id} key={project.id}>
+                              <Group gap="xs">
+                                {selectedProjects.includes(project.id) && <Check size={16} />}
+                                <span>{project.title}</span>
+                              </Group>
+                            </Combobox.Option>
+                          ))
+                        )
+                      : (
+                          <Combobox.Empty>No projects found</Combobox.Empty>
+                        )}
+                  </Combobox.Options>
+                </Combobox.Dropdown>
+              </Combobox>
+            </Box>
+          </Stack>
+
+          <Group justify="space-between" mt="xl">
+            <Button variant="subtle" onClick={() => setStep(1)}>
+              Back
+            </Button>
+            <Flex gap="md">
+              <Button variant="outline">Save as Draft</Button>
+              <Button>Publish Artifact</Button>
+            </Flex>
+          </Group>
+        </Card>
       )}
     </Container>
   );

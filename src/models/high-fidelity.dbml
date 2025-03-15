@@ -1,14 +1,121 @@
 Table users {
   id serial [pk, increment]
+  username varchar(100) [not null]
+  email varchar(100) [not null, unique]
+  password varchar(255) [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table teams {
   id serial [pk, increment]
+  name varchar(100) [unique]
   project_id integer [ref: > projects.id] 
+  title varchar(255) [not null]
+  description text
+  long_description text 
+  progress integer
+  start_date date
+  status varchar(50)
+}
+
+Table users_to_teams {
+  user_id integer [ref: > users.id]
+  team_id integer [ref: > teams.id]
+  role varchar(50)
+  join_date date
+  status varchar(50)
+
+  indexes {
+    (user_id, team_id, role) [pk]
+  }
+}
+
+Table teams_to_languages {
+  team_id integer [ref: > teams.id]
+  language_id integer [ref: > languages.id]
+
+  indexes {
+    (team_id, language_id) [pk]
+  }
+}
+
+Table recent_activities {
+  id serial [pk, increment]
+  team_id integer [ref: > teams.id]
+  type varchar(50)
+  user varchar(100)
+  action text
+  date timestamp
+  details text
+}
+
+Table project_categories {
+  id serial [pk, increment]
+  slug varchar(50) [unique]
+  name varchar(100)
+  description text
+  icon varchar(50)
+}
+
+Table technologies {
+  id serial [pk, increment]
+  name varchar(100) [unique]
+  category varchar(50)
 }
 
 Table projects {
   id serial [pk, increment]
+  title varchar(255) [not null]
+  description text
+  long_description text
+  category_id integer [ref: > project_categories.id]
+  complexity varchar(20) // 'low', 'medium', 'high'
+  longevity varchar(20) // 'short-term', 'medium-term', 'long-term'
+  duration varchar(50)
+  team_size integer
+  progress integer
+  stars integer [default: 0]
+  forks integer [default: 0]
+  last_updated timestamp
+  created_at timestamp [default: `now()`]
+  repository_url varchar(500)
+  demo_url varchar(500)
+}
+
+Table projects_to_technologies {
+  project_id integer [ref: > projects.id]
+  technology_id integer [ref: > technologies.id]
+  primary boolean [default: false]
+
+  indexes {
+    (project_id, technology_id) [pk]
+  }
+}
+
+Table roles {
+  id serial [pk, increment]
+  name varchar(100) [unique]
+  description text
+  typical_skills text[]
+  default_count integer [default: 1]
+}
+
+Table projects_to_roles {
+  project_id integer [ref: > projects.id]
+  role_id integer [ref: > roles.id]
+  count integer
+  specific_skills text[]
+
+  indexes {
+    (project_id, role_id) [pk]
+  }
+}
+
+Table project_learning_outcomes {
+  id serial [pk, increment]
+  project_id integer [ref: > projects.id]
+  outcome text
 }
 
 Table artifact_categories {
@@ -48,17 +155,40 @@ Table artifacts {
   status varchar(20) // 'draft', 'published', 'archived'
 }
 
-Table artifact_version_changes {
-  id serial [pk, increment]
+Table artifacts_to_projects {
   artifact_id integer [ref: > artifacts.id]
-  user_id integer [ref: > users.id]
-  
-  change_type varchar(50) // 'title', 'description', 'file'
-  old_value text
-  new_value text
-  
-  changed_at timestamp [default: `now()`]
-  change_description text
+  project_id integer [ref: > projects.id]
+  added_at timestamp [default: `now()`]
+
+  indexes {
+    (artifact_id, project_id) [pk]
+  }
+}
+
+Table artifacts_to_teams {
+  artifact_id integer [ref: > artifacts.id]
+  team_id integer [ref: > teams.id]
+  added_at timestamp [default: `now()`]
+
+  indexes {
+    (artifact_id, team_id) [pk]
+  }
+}
+
+Table artifact_tags {
+  id serial [pk, increment]
+  name varchar(50) [unique]
+  description text
+}
+
+Table artifacts_to_artifact_tags {
+  artifact_id integer [ref: > artifacts.id]
+  artifact_tag_id integer [ref: > artifact_tags.id]
+  added_at timestamp [default: `now()`]
+
+  indexes {
+    (artifact_id, artifact_tag_id) [pk]
+  }
 }
 
 Table news {
@@ -70,36 +200,88 @@ Table notifications {
   news_id integer [ref: > news.id]
 }
 
-Table u_to_t {
+Table notifications_to_users {
+  notification_id integer [ref: > notifications.id]
   user_id integer [ref: > users.id]
-  team_id integer [ref: > teams.id]
+
+  indexes {
+    (notification_id, user_id) [pk]
+  }
 }
 
-Table a_to_p {
-  artifact_id integer [ref: > artifacts.id]
-  project_id integer [ref: > projects.id]
-  added_at timestamp [default: `now()`]
-}
-
-Table a_to_t {
-  artifact_id integer [ref: > artifacts.id]
-  team_id integer [ref: > teams.id]
-  added_at timestamp [default: `now()`]
-}
-
-Table artifact_tags {
+Table user_profiles {
   id serial [pk, increment]
-  name varchar(50) [unique]
+  user_id integer [ref: > users.id]
+  title varchar(255)
+  avatar_url varchar(500)
+  location varchar(255)
+  about text
+  github_username varchar(100)
+  linkedin_username varchar(100)
+  twitter_username varchar(100)
+  website_url varchar(500)
+  availability_status varchar(50) // 'available', 'unavailable', etc.
+  availability_date date
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table user_stats {
+  user_id integer [pk, ref: > users.id]
+  projects_completed integer [default: 0]
+  teams_led integer [default: 0]
+  artifacts_created integer [default: 0]
+  contributions integer [default: 0]
+  rating decimal(3,2)
+}
+
+Table languages {
+  id serial [pk, increment]
+  name varchar(100)
   description text
 }
 
-Table a_to_tags {
-  artifact_id integer [ref: > artifacts.id]
-  tag_id integer [ref: > artifact_tags.id]
-  added_at timestamp [default: `now()`]
+Table users_to_languages {
+  user_id integer [ref: > users.id]
+  language_id integer [ref: > languages.id]
+  proficiency_level varchar(50) // 'Basic', 'Intermediate', 'Fluent'
+
+  indexes {
+    (language_id, user_id) [pk]
+  }
 }
 
-Table n_to_u {
-  notification_id integer [ref: > notifications.id]
+Table project_stages {
+  id serial [pk, increment]
+  name varchar(100) // 'Prototyping', 'MVP Development', 'Scaling'
+  description text
+}
+
+Table users_to_stages {
   user_id integer [ref: > users.id]
+  stage_id integer [ref: > project_stages.id]
+
+  indexes {
+    (stage_id, user_id) [pk]
+  }
+}
+
+Table users_to_technologies {
+  user_id integer [ref: > users.id]
+  technology_id integer [ref: > technologies.id]
+  proficiency_level varchar(50)
+
+  indexes {
+    (technology_id, user_id) [pk]
+  }
+}
+
+Table users_to_roles {
+  user_id integer [ref: > users.id]
+  role_id integer [ref: > roles.id]
+  is_primary boolean [default: false]
+
+  indexes {
+    (role_id, user_id) [pk]
+  }
 }

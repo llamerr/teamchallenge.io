@@ -30,6 +30,8 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@ai-sdk/google": "^1.1.25",
+    "@ai-sdk/react": "^1.1.23",
     "@arcjet/next": "^1.0.0-beta.2",
     "@clerk/localizations": "^3.10.5",
     "@clerk/nextjs": "^6.11.2",
@@ -38,11 +40,15 @@
     "@logtail/pino": "^0.5.2",
     "@mantine/core": "^7.17.0",
     "@mantine/hooks": "^7.17.0",
+    "@radix-ui/react-slot": "^1.1.2",
     "@sentry/nextjs": "^8.54.0",
     "@spotlightjs/spotlight": "^2.10.3",
     "@t3-oss/env-nextjs": "^0.12.0",
     "@tabler/icons-react": "^3.30.0",
+    "ai": "^4.1.61",
+    "class-variance-authority": "^0.7.1",
     "drizzle-orm": "^0.39.3",
+    "lucide-react": "^0.479.0",
     "next": "^15.1.7",
     "next-intl": "^3.26.3",
     "pg": "^8.13.2",
@@ -51,6 +57,8 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-hook-form": "^7.54.2",
+    "tailwind-merge": "^3.0.2",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"
   },
   "devDependencies": {
