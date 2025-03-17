@@ -6,6 +6,7 @@ import { Sparkles } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 type AITextInputProps = {
+  name: string;
   label: string;
   placeholder?: string;
   value: string;
@@ -16,6 +17,7 @@ type AITextInputProps = {
 };
 
 export function AITextInput({
+  name,
   label,
   placeholder,
   value,
@@ -60,6 +62,7 @@ export function AITextInput({
     <div>
       <TextInput
         ref={inputRef}
+        name={name}
         label={label}
         placeholder={placeholder}
         value={input}

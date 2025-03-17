@@ -54,5 +54,6 @@ export default antfu({
     'test/padding-around-all': 'error', // Add padding in test files
     'test/prefer-lowercase-title': 'off', // Allow using uppercase titles in test titles
     '@typescript-eslint/no-use-before-define': 'warn', // Allow using variables before they're defined
+    'no-constant-condition': 'warn', // Allow using constant conditions
   },
 });

@@ -6,6 +6,7 @@ import { Sparkles } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 type AITextareaProps = {
+  name: string;
   label: string;
   placeholder?: string;
   value: string;
@@ -17,6 +18,7 @@ type AITextareaProps = {
 };
 
 export function AITextarea({
+  name,
   label,
   placeholder,
   value,
@@ -63,6 +65,7 @@ export function AITextarea({
     <div>
       <Textarea
         ref={textareaRef}
+        name={name}
         label={label}
         placeholder={placeholder}
         value={completion}
