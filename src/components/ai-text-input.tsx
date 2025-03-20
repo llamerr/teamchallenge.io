@@ -40,9 +40,11 @@ export function AITextInput({
   });
 
   useEffect(() => {
-    onChange(completion);
-    setInput(completion);
-  }, [completion, onChange, setInput]);
+    if (value !== completion) {
+      onChange(completion);
+      setInput(completion);
+    }
+  }, [completion, onChange, setInput, value]);
 
   const generateFullText = async () => {
     try {

@@ -1,26 +1,35 @@
+'use client';
+
 import { CheckIcon, Combobox, Group, Pill, PillsInput, useCombobox } from '@mantine/core';
 import { useState } from 'react';
 
 type TagsInputProps = {
-  value: string[];
-  onChange: (tags: string[]) => void;
+  value: Array<{ value: string; label: string }>;
+  onChange: (tags: Array<{ value: string; label: string }>) => void;
   placeholder?: string;
-  predefinedTags?: string[];
+  predefinedTags?: Array<{ value: string; label: string }>;
 };
 
 // TODO: add fuzzy search
 // TODO: add icons for frameworks/techs
-
-function getFilteredOptions(data: string[], value: string[], searchQuery: string, limit: number) {
-  const result: string[] = [];
+function getFilteredOptions(
+  data: Array<{ value: string; label: string }>,
+  value: Array<{ value: string; label: string }>,
+  searchQuery: string,
+  limit: number,
+): Array<{ value: string; label: string }> {
+  const result: Array<{ value: string; label: string }> = [];
 
   for (let i = 0; i < data.length; i += 1) {
     if (result.length === limit) {
       break;
     }
 
-    if (data[i].toLowerCase().includes(searchQuery.trim().toLowerCase()) && !value.includes(data[i])) {
-      result.push(data[i]);
+    const isAlreadySelected = value.some(tag => tag.value === data[i]?.value);
+    const hasValue = data[i]?.value?.toLowerCase().includes(searchQuery.trim().toLowerCase());
+
+    if (hasValue && !isAlreadySelected) {
+      result.push(data[i]!);
     }
   }
 
@@ -41,23 +50,27 @@ export function TagsInput({
   const [search, setSearch] = useState('');
 
   const handleValueSelect = (val: string) =>
-    onChange(value.includes(val) ? value.filter(v => v !== val) : [...value, val]);
+    onChange(
+      value.includes({ value: val, label: val })
+        ? value.filter(v => v.value !== val)
+        : [...value, { value: val, label: val }],
+    );
 
-  const handleValueRemove = (val: string) =>
-    onChange(value.filter(v => v !== val));
+  const handleValueRemove = (val: { value: string; label: string }) =>
+    onChange(value.filter(v => v.value !== val.value));
 
   const values = value.map(item => (
-    <Pill key={item} withRemoveButton onRemove={() => handleValueRemove(item)}>
-      {item}
+    <Pill key={item.value} withRemoveButton onRemove={() => handleValueRemove(item)}>
+      {item.label}
     </Pill>
   ));
 
   const options = getFilteredOptions(predefinedTags, value, search, 5)
     .map(item => (
-      <Combobox.Option value={item} key={item} active={value.includes(item)}>
+      <Combobox.Option value={item.value} key={item.value} active={value.some(v => v.value === item.value)}>
         <Group gap="sm">
-          {value.includes(item) ? <CheckIcon size={12} /> : null}
-          <span>{item}</span>
+          {value.some(v => v.value === item.value) ? <CheckIcon size={12} /> : null}
+          <span>{item.label}</span>
         </Group>
       </Combobox.Option>
     ));
@@ -83,7 +96,7 @@ export function TagsInput({
                   if (event.key === 'Backspace' && search.length === 0 && value.length > 0) {
                     event.preventDefault();
                     const prevValue = value[value.length - 1];
-                    handleValueRemove(prevValue as string);
+                    handleValueRemove(prevValue as { value: string; label: string });
                   }
                 }}
               />

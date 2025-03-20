@@ -3,32 +3,65 @@
 import type { projectsTable } from '@/models/projects';
 import type { artifactCategoriesTable } from '@/models/Schema';
 import type { InferSelectModel } from 'drizzle-orm';
+import type { z } from 'zod';
 import { AITextInput } from '@/components/ai-text-input';
 import { AITextarea } from '@/components/ai-textarea';
 import { TagsInput } from '@/components/TagsInput';
 import { Avatar, Box, Button, Card, Center, Checkbox, Combobox, Container, Divider, Flex, Group, InputBase, Loader, Paper, Radio, Select, Stack, Stepper, Switch, Text, TextInput, Title, useCombobox } from '@mantine/core';
-import { ArrowLeft, Check, Plus, Upload } from 'lucide-react';
+import { useForm, zodResolver } from '@mantine/form';
+import isEqual from 'lodash.isequal';
+import { ArrowLeft, Plus, Upload, X } from 'lucide-react';
 import Link from 'next/link';
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { createArtifact } from './action';
+import { CreateArtifactSchema } from './types';
 
 // Predefined tags for artifacts
-const artifactTags = [
-  'frontend',
-  'backend',
-  'database',
-  'api',
-  'ui/ux',
-  'documentation',
-  'testing',
-  'deployment',
-  'security',
-  'performance',
-  'optimization',
-  'mobile',
-  'desktop',
-  'web',
+const artifactTags: Array<{ value: string; label: string }> = [
+  { value: '1', label: 'Frontend' },
+  { value: '2', label: 'Backend' },
+  { value: '3', label: 'Database' },
+  { value: '4', label: 'API' },
+  { value: '5', label: 'UI/UX' },
+  { value: '6', label: 'Documentation' },
+  { value: '7', label: 'Testing' },
+  { value: '8', label: 'Deployment' },
+  { value: '9', label: 'Security' },
+  { value: '10', label: 'Performance' },
+  { value: '11', label: 'Optimization' },
+  { value: '12', label: 'Mobile' },
+  { value: '13', label: 'Desktop' },
+  { value: '14', label: 'Web' },
 ];
+
+const toFormData = (values: Partial<z.infer<typeof CreateArtifactSchema>>) => {
+  const formData = new FormData();
+
+  for (const [key, value] of Object.entries(values)) {
+    if (Array.isArray(value)) {
+      // Handle array values by appending each item with indexed keys
+      value.forEach((item) => {
+        formData.append(`${key}`, item.toString());
+      });
+    } else {
+      // Handle non-array values
+      formData.append(key, value as string | Blob);
+    }
+  }
+
+  return formData;
+};
+
+const initialValues: Partial<z.infer<typeof CreateArtifactSchema>> = {
+  // TODO: current user id from auth
+  authorId: 2,
+  title: '',
+  description: '',
+  artifactTagsIds: [],
+  version: '',
+  license: '',
+  projectsIds: [],
+};
 
 type CreateArtifactFormProps = {
   projects: InferSelectModel<typeof projectsTable>[];
@@ -37,55 +70,43 @@ type CreateArtifactFormProps = {
 };
 
 export default function CreateArtifactForm({ projects, licenses, categories }: CreateArtifactFormProps) {
+  // stepper state
   const [step, setStep] = useState(0);
-  const [tags, setTags] = useState<string[]>([]);
-  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  // local form state
+  const form = useForm<Partial<z.infer<typeof CreateArtifactSchema>>>({
+    mode: 'controlled',
+    initialValues,
+    validate: zodResolver(CreateArtifactSchema),
+  });
+
+  // remote form/api state
+  const [formState, formAction, isPending] = useActionState(createArtifact, initialValues);
+  const lastFormState = useRef(formState);
+
+  // sync local state on form action
+  useEffect(() => {
+    if (!isEqual(form.values, formState) && !isEqual(lastFormState.current, formState)) {
+      form.setValues(formState);
+      lastFormState.current = formState;
+    }
+  }, [formState, form]);
+
+  // mock values for now until schema refined
   const [isPublic, setIsPublic] = useState(true);
   const [visibilityValue, setVisibilityValue] = useState('anyone');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [version, setVersion] = useState('');
-  const [license, setLicense] = useState('');
 
   // Combobox for project search
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
   });
 
-  const handleProjectToggle = (projectId: string) => {
-    setSelectedProjects(prev =>
-      prev.includes(projectId) ? prev.filter(id => id !== projectId) : [...prev, projectId],
-    );
+  const handleProjectToggle = (projectId: number) => {
+    form.values.projectsIds = form.values.projectsIds?.includes(projectId)
+      ? form.values.projectsIds.filter(id => id !== projectId)
+      : [...(form.values.projectsIds || []), projectId];
   };
 
-  const filteredProjects = projects.filter(project => !selectedProjects.includes(project.id.toString()));
-
-  const [state, formAction, isPending] = useActionState(createArtifact, {
-    // TODO: current user id from auth
-    authorId: '1',
-    title: '',
-    description: '',
-    categoryId: '',
-    artifactTagsIds: [],
-    version: '',
-    license: '',
-    projectsIds: [],
-  });
-
-  useEffect(() => {
-    console.log('form state title changed', state.title);
-    if (state.title) {
-      setTitle(state.title);
-    }
-  }, [state.title]);
-
-  useEffect(() => {
-    console.log('form state description changed', state.description);
-    if (state.description) {
-      setDescription(state.description);
-    }
-  }, [state.description]);
+  const filteredProjects = projects.filter(project => !form.values.projectsIds?.includes(project.id));
 
   return (
     <Container size="md" py="xl">
@@ -120,7 +141,7 @@ export default function CreateArtifactForm({ projects, licenses, categories }: C
         </Stepper.Step>
       </Stepper>
 
-      <form action={formAction}>
+      <form action={() => formAction(toFormData(form.values))}>
         {step === 0 && (
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section withBorder inheritPadding py="md">
@@ -134,8 +155,8 @@ export default function CreateArtifactForm({ projects, licenses, categories }: C
               <AITextInput
                 label="Title"
                 placeholder="Enter a descriptive title for your artifact"
-                value={title}
-                onChange={setTitle}
+                value={form.values.title || ''}
+                onChange={value => form.setFieldValue('title', value)}
                 required
                 contextPrompt="You are helping a user create a title for a project artifact. The title should be concise, descriptive, and professional."
                 generatePrompt="Generate a title for a project artifact. Examples might include 'E-commerce Database Schema', 'Task Manager UI Design', 'Social Media App Architecture', etc. Make it specific and professional."
@@ -145,13 +166,13 @@ export default function CreateArtifactForm({ projects, licenses, categories }: C
               <AITextarea
                 label="Description"
                 placeholder="Provide a detailed description of your artifact"
-                value={description}
-                onChange={setDescription}
+                value={form.values.description || ''}
+                onChange={value => form.setFieldValue('description', value)}
                 minRows={4}
                 required
                 contextPrompt="You are helping a user write a description for a project artifact. The description should explain what the artifact is, its purpose, and its key features or components."
                 generatePrompt={
-                  `${title ? `Current artifact title is: ${title}\n\n` : ''
+                  `${form.values.title ? `Current artifact title is: ${form.values.title}\n\n` : ''
                   }Generate a detailed description for a project artifact. The description should explain what the artifact is, its purpose, and its key features or components. Make it informative and professional, around 2-3 sentences.`
                 }
                 name="description"
@@ -165,8 +186,8 @@ export default function CreateArtifactForm({ projects, licenses, categories }: C
                   label: category.name || '',
                 }))}
                 required
-                value={categoryId}
-                onChange={(_value, option) => setCategoryId(option)}
+                value={form.values.categoryId?.toString()}
+                onChange={v => form.setFieldValue('categoryId', Number(v))}
                 name="categoryId"
               />
 
@@ -175,8 +196,12 @@ export default function CreateArtifactForm({ projects, licenses, categories }: C
                   Tags
                 </Text>
                 <TagsInput
-                  value={tags}
-                  onChange={setTags}
+                  value={
+                    form.values.artifactTagsIds?.map(
+                      id => artifactTags.find(tag => tag.value === id.toString()) as { value: string; label: string },
+                    ) || []
+                  }
+                  onChange={v => form.setFieldValue('artifactTagsIds', v.map(value => Number(value.value)))}
                   placeholder="Add tags..."
                   predefinedTags={artifactTags}
                 />
@@ -232,8 +257,8 @@ export default function CreateArtifactForm({ projects, licenses, categories }: C
               <TextInput
                 label="Version"
                 placeholder="e.g., 1.0.0"
-                value={version}
-                onChange={e => setVersion(e.target.value)}
+                value={form.values.version}
+                onChange={e => form.setFieldValue('version', e.target.value)}
                 name="version"
               />
 
@@ -241,8 +266,8 @@ export default function CreateArtifactForm({ projects, licenses, categories }: C
                 label="License"
                 placeholder="Choose a license"
                 data={licenses.map(license => ({ value: license.value, label: license.label }))}
-                value={license}
-                onChange={setLicense}
+                value={form.values.license}
+                onChange={v => form.setFieldValue('license', v as string)}
                 name="license"
               />
 
@@ -317,8 +342,8 @@ export default function CreateArtifactForm({ projects, licenses, categories }: C
                   <Checkbox
                     key={project.id}
                     label={project.title}
-                    checked={selectedProjects.includes(project.id.toString())}
-                    onChange={() => handleProjectToggle(project.id.toString())}
+                    checked={form.values.projectsIds?.includes(project.id)}
+                    onChange={() => handleProjectToggle(project.id)}
                   />
                 ))}
               </Stack>
@@ -330,7 +355,7 @@ export default function CreateArtifactForm({ projects, licenses, categories }: C
                 <Combobox
                   store={combobox}
                   onOptionSubmit={(val) => {
-                    handleProjectToggle(val);
+                    handleProjectToggle(Number(val));
                     combobox.closeDropdown();
                   }}
                 >
@@ -359,7 +384,7 @@ export default function CreateArtifactForm({ projects, licenses, categories }: C
                             filteredProjects.map(project => (
                               <Combobox.Option value={project.id.toString()} key={project.id}>
                                 <Group gap="xs">
-                                  {selectedProjects.includes(project.id.toString()) && <Check size={16} />}
+                                  {form.values.projectsIds?.includes(project.id) && <X size={16} />}
                                   <span>{project.title}</span>
                                 </Group>
                               </Combobox.Option>

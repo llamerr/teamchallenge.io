@@ -1,82 +1,46 @@
 'use server';
 
 import { db } from '@/libs/DB';
-import { artifactsTable } from '@/models/artifacts';
-import { z } from 'zod';
-
-const CreateArtifactSchema = z.object({
-  authorId: z
-    .string()
-    .min(3, { message: 'Be at least 3 characters long' })
-    .trim(),
-  title: z
-    .string()
-    .min(3, { message: 'Be at least 3 characters long' })
-    .trim(),
-  description: z
-    .string()
-    .min(8, { message: 'Be at least 8 characters long' })
-    .trim(),
-  categoryId: z
-    .string()
-    .min(3, { message: 'Be at least 3 characters long' })
-    .trim(),
-  artifactTagsIds: z
-    .array(z
-      .string()
-      .min(3, { message: 'Be at least 3 characters long' }),
-    )
-    .min(1, { message: 'At least one tag is required' }),
-  version: z
-    .string()
-    .min(3, { message: 'Be at least 3 characters long' })
-    .trim(),
-  license: z
-    .string()
-    .min(3, { message: 'Be at least 3 characters long' })
-    .trim(),
-  projectsIds: z
-    .array(z
-      .string()
-      .min(3, { message: 'Be at least 3 characters long' }),
-    )
-    .min(1, { message: 'At least one project is required' }),
-});
+import { artifactsTable, artifactsToArtifactTagsTable } from '@/models/artifacts';
+import { artifactsToProjectsTable } from '@/models/Schema';
+import { CreateArtifactSchema } from './types';
 
 export type CreateArtifactActionState = {
-  authorId?: string;
-  title?: string;
-  description?: string;
-  categoryId?: string;
-  artifactTagsIds: string[];
+  authorId: number;
+  title: string;
+  description: string;
+  categoryId: number;
+  artifactTagsIds?: number[];
   version?: string;
   license?: string;
-  projectsIds: string[];
+  projectsIds?: number[];
   errors?: {
-    authorId?: string;
-    title?: string;
-    description?: string;
-    categoryId?: string;
+    authorId?: string[];
+    title?: string[];
+    description?: string[];
+    categoryId?: string[];
     artifactTagsIds?: string[];
-    version?: string;
-    license?: string;
+    version?: string[];
+    license?: string[];
     projectsIds?: string[];
   };
 };
 
 export async function createArtifact(
-  _prevState: CreateArtifactActionState,
+  _prevState: Partial<CreateArtifactActionState>,
   form: FormData,
-): Promise<CreateArtifactActionState> {
+): Promise<Partial<CreateArtifactActionState>> {
   console.log('form data', form);
-  const authorId = form.get('authorId') as string;
+  const authorId = Number(form.get('authorId'));
   const title = form.get('title') as string;
   const description = form.get('description') as string;
-  const categoryId = form.get('categoryId') as string;
-  const artifactTagsIds = form.get('artifactTagsIds') as string[];
+  const categoryId = Number(form.get('categoryId'));
+  const artifactTagsIds = form.getAll('artifactTagsIds').map(Number) as number[];
   const version = form.get('version') as string;
   const license = form.get('license') as string;
-  const projectsIds = form.get('projectsIds') as string[];
+  const projectsIds = form.getAll('projectsIds').map(Number) as number[];
+
+  console.log('artifactTagsIds', artifactTagsIds);
 
   const validatedFields = CreateArtifactSchema.safeParse({
     authorId,
@@ -107,27 +71,47 @@ export async function createArtifact(
 
   console.log('validatedFields', validatedFields);
   // process validated form inputs here
-  await db.insert(artifactsTable).values({
-    title,
-    description,
-    categoryId: Number(categoryId),
-    authorId: Number(authorId),
-    license,
-    versionNumber: version,
-    versionType: 'original',
-    isCurrent: true,
-    status: 'published',
+  await db.transaction(async (tx) => {
+    const [artifact] = await tx.insert(artifactsTable).values({
+      title,
+      description,
+      categoryId: Number(categoryId),
+      authorId: Number(authorId),
+      license,
+      versionNumber: version,
+      versionType: 'original',
+      isCurrent: true,
+      status: 'published',
+    }).returning();
+
+    if (!artifact) {
+      tx.rollback();
+      return;
+    }
+
+    for (const artifactTagId of artifactTagsIds) {
+      await tx.insert(artifactsToArtifactTagsTable).values({
+        artifactId: artifact.id,
+        artifactTagId,
+      });
+    }
+
+    for (const projectId of projectsIds) {
+      await tx.insert(artifactsToProjectsTable).values({
+        artifactId: artifact.id,
+        projectId,
+      });
+    }
   });
 
   return {
+    authorId,
     title,
     description,
     categoryId,
-    authorId,
+    artifactTagsIds,
+    version,
     license,
-    versionNumber,
-    versionType,
-    isCurrent: Boolean(isCurrent),
-    status,
+    projectsIds,
   };
 }

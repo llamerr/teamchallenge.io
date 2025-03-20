@@ -42,9 +42,11 @@ export function AITextarea({
   });
 
   useEffect(() => {
-    onChange(completion);
-    setInput(completion);
-  }, [completion, onChange, setInput]);
+    if (value !== completion) {
+      onChange(completion);
+      setInput(completion);
+    }
+  }, [completion, onChange, setInput, value]);
 
   // Generate complete text
   const generateFullText = async () => {
