@@ -3,7 +3,7 @@
 import { useCompletion } from '@ai-sdk/react';
 import { ActionIcon, TextInput, Tooltip } from '@mantine/core';
 import { Sparkles } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 type AITextInputProps = {
   name: string;
@@ -28,7 +28,7 @@ export function AITextInput({
 }: AITextInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { completion, input, isLoading, setInput, handleInputChange, complete } = useCompletion({
+  const { completion, input, isLoading, setInput, complete } = useCompletion({
     api: '/api/chat/artifact',
     initialInput: value,
     body: {
@@ -39,12 +39,21 @@ export function AITextInput({
     },
   });
 
+  // https://github.com/vercel/ai/blob/82c0c5cd474d3f5550a6eb6f36eabd672724f076/packages/react/src/use-completion.ts#L206
+  const handleInputChange = useCallback(
+    (e: any) => {
+      setInput(e.target.value);
+      onChange(e.target.value);
+    },
+    [setInput, onChange],
+  );
+
   useEffect(() => {
-    if (value !== completion) {
+    if (value !== completion && isLoading) {
       onChange(completion);
       setInput(completion);
     }
-  }, [completion, onChange, setInput, value]);
+  }, [completion, onChange, setInput, value, isLoading]);
 
   const generateFullText = async () => {
     try {
@@ -70,6 +79,7 @@ export function AITextInput({
         value={input}
         onChange={handleInputChange}
         required={required}
+        disabled={isLoading}
         rightSection={(
           <Tooltip label="Generate AI text">
             <ActionIcon

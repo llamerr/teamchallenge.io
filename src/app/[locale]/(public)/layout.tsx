@@ -71,6 +71,14 @@ export default async function Layout(props: {
               </Link>
             </li>
             <li>
+              <Link
+                href="/admin/"
+                className="border-none text-gray-700 hover:text-gray-900"
+              >
+                {t('admin_link')}
+              </Link>
+            </li>
+            <li>
               <a
                 className="border-none text-gray-700 hover:text-gray-900"
                 href="https://github.com/ixartz/Next-js-Boilerplate"

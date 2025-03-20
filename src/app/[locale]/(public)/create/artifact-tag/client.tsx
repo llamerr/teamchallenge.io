@@ -9,6 +9,7 @@ import { useForm, zodResolver } from '@mantine/form';
 import isEqual from 'lodash.isequal';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useRef } from 'react';
 import { createArtifactTag } from './action';
 import { CreateArtifactTagSchema } from './types';
@@ -19,6 +20,8 @@ const initialValues: Partial<z.infer<typeof CreateArtifactTagSchema>> = {
 };
 
 export default function CreateArtifactTagForm() {
+  const router = useRouter();
+
   // local form state
   const form = useForm<Partial<z.infer<typeof CreateArtifactTagSchema>>>({
     mode: 'controlled',
@@ -29,6 +32,12 @@ export default function CreateArtifactTagForm() {
   // remote form/api state
   const [formState, formAction, isPending] = useActionState(createArtifactTag, initialValues);
   const lastFormState = useRef(formState);
+
+  useEffect(() => {
+    if (formState.id) {
+      router.push('/admin/tags');
+    }
+  }, [formState, router]);
 
   // sync local state on form action
   useEffect(() => {
@@ -41,7 +50,7 @@ export default function CreateArtifactTagForm() {
   return (
     <Container size="md" py="xl">
       <Group mb="lg">
-        <Button component={Link} href="/artifacts/artifact-tags" variant="subtle" leftSection={<ArrowLeft size={16} />}>
+        <Button component={Link} href="/admin/tags" variant="subtle" leftSection={<ArrowLeft size={16} />}>
           Back to Artifact Tags
         </Button>
       </Group>
