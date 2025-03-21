@@ -62,6 +62,36 @@ function AdminDashboard() {
 
         <Card shadow="sm" padding="lg" radius="md" withBorder>
           <Group>
+            <div className="p-3 bg-yellow-100 rounded-full">
+              <Users className="h-6 w-6 text-yellow-600" />
+            </div>
+            <Title order={3}>Roles</Title>
+          </Group>
+          <Text mt="md" mb="xl">
+            Manage user roles and permissions.
+          </Text>
+          <Button component={Link} href="/admin/roles" variant="light" fullWidth>
+            Manage Roles
+          </Button>
+        </Card>
+
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Group>
+            <div className="p-3 bg-red-100 rounded-full">
+              <Settings className="h-6 w-6 text-red-600" />
+            </div>
+            <Title order={3}>Technologies</Title>
+          </Group>
+          <Text mt="md" mb="xl">
+            Manage the technologies used in the platform.
+          </Text>
+          <Button component={Link} href="/admin/technologies" variant="light" fullWidth>
+            Manage Technologies
+          </Button>
+        </Card>
+
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Group>
             <div className="p-3 bg-orange-100 rounded-full">
               <Settings className="h-6 w-6 text-orange-600" />
             </div>
