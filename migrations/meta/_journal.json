@@ -5,8 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1725916508373,
+      "when": 1742738291600,
       "tag": "0000_init-db",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1742738295790,
+      "tag": "0001_seed-db",
       "breakpoints": true
     }
   ]
