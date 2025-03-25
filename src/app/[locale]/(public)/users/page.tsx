@@ -61,6 +61,8 @@ async function fetchUsers() {
 export default async function UsersPage() {
   const users = await fetchUsers();
 
+  console.log(users);
+
   return (
     <Container size="xl" py="xl">
       <Flex justify="space-between" align="center" mb="xl">

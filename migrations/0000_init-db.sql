@@ -192,8 +192,7 @@ CREATE TABLE "teams" (
 	"long_description" text,
 	"progress" integer,
 	"start_date" date,
-	"status" varchar(50),
-	CONSTRAINT "teams_name_unique" UNIQUE("name")
+	"status" varchar(50)
 );
 --> statement-breakpoint
 CREATE TABLE "technologies" (

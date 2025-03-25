@@ -8,7 +8,7 @@ import { usersTable } from '../users';
 // ------------------- Tables -------------------
 export const teamsTable = pgTable('teams', {
   id: serial('id').primaryKey(),
-  name: varchar('name', { length: 100 }).unique(),
+  name: varchar('name', { length: 100 }),
   projectId: integer('project_id').references(() => projectsTable.id),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
