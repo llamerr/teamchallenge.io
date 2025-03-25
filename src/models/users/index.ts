@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm';
 import { integer, pgTable, primaryKey, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { artifactsTable } from '../artifacts';
+import { usersToLanguagesTable, usersToRolesTable, usersToTeamsTable, usersToTechnologiesTable } from '../Schema';
 
 // ------------------- Tables -------------------
 export const usersTable = pgTable('users', {
@@ -50,15 +51,23 @@ export const usersToStagesTable = pgTable('users_to_stages', {
 }, t => [primaryKey({ columns: [t.user_id, t.stage_id] })]);
 
 // ------------------- Relations -------------------
-export const usersRelations = relations(usersTable, ({ many }) => ({
-  // many-to-one users.id -< user_profiles.user_id
-  userProfiles: many(userProfilesTable),
-  // many-to-one users.id -< user_stats.user_id
-  userStats: many(userStatsTable),
+export const usersRelations = relations(usersTable, ({ one, many }) => ({
+  // one-to-one users.id -< user_profiles.user_id
+  userProfile: one(userProfilesTable),
+  // one-to-one users.id -< user_stats.user_id
+  userStats: one(userStatsTable),
   // many-to-many users.id >-< project_stages.id
   projectStages: many(usersToStagesTable),
   // many-to-one artifacts.author_id >- users.id
   artifacts: many(artifactsTable),
+  // many-to-many users.id >-< technologies.id
+  technologies: many(usersToTechnologiesTable),
+  // many-to-many users.id >-< languages.id
+  languages: many(usersToLanguagesTable),
+  // many-to-many users.id >-< roles.id
+  roles: many(usersToRolesTable),
+  // many-to-many users.id >-< teams.id
+  teams: many(usersToTeamsTable),
 }));
 
 export const userProfilesRelations = relations(userProfilesTable, ({ one }) => ({

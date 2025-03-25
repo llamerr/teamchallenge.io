@@ -1,134 +1,65 @@
+import { db } from '@/libs/DB';
+import { usersToTechnologiesTable } from '@/models/Schema';
+import { technologiesTable } from '@/models/technologies';
+import { userProfilesTable, usersTable, userStatsTable } from '@/models/users';
 import { ActionIcon, Avatar, Badge, Box, Button, Card, Container, Flex, Grid, GridCol, Group, Select, Stack, Tabs, TabsList, TabsPanel, TabsTab, Text, TextInput, Title } from '@mantine/core';
 import { IconBriefcase, IconCode, IconFilter, IconMapPin, IconSearch, IconStar } from '@tabler/icons-react';
+import { sql } from 'drizzle-orm';
 import Link from 'next/link';
 
-// Mock data for users
-const users = [
-  {
-    id: '1',
-    name: 'Jane Doe',
-    title: 'Full Stack Developer',
-    avatar: '/placeholder.svg?height=200&width=200',
-    location: 'San Francisco, CA',
-    lookingForProject: true,
-    availability: 'Immediate',
-    skills: ['React', 'Node.js', 'TypeScript', 'AWS'],
-    roles: ['Frontend Developer', 'Backend Developer'],
-    projectsCompleted: 12,
-    rating: 4.9,
-    bio: 'Passionate developer with 5 years of experience in building scalable web applications.',
-  },
-  {
-    id: '2',
-    name: 'John Smith',
-    title: 'UI/UX Designer',
-    avatar: '/placeholder.svg?height=200&width=200',
-    location: 'New York, NY',
-    lookingForProject: true,
-    availability: '2 weeks',
-    skills: ['Figma', 'Adobe XD', 'UI Design', 'Prototyping'],
-    roles: ['UI/UX Designer'],
-    projectsCompleted: 8,
-    rating: 4.7,
-    bio: 'Creative designer focused on creating intuitive and beautiful user experiences.',
-  },
-  {
-    id: '3',
-    name: 'Emily Chen',
-    title: 'Frontend Developer',
-    avatar: '/placeholder.svg?height=200&width=200',
-    location: 'Seattle, WA',
-    lookingForProject: true,
-    availability: '1 month',
-    skills: ['React', 'Vue.js', 'CSS', 'JavaScript'],
-    roles: ['Frontend Developer'],
-    projectsCompleted: 6,
-    rating: 4.8,
-    bio: 'Frontend specialist with a keen eye for detail and performance optimization.',
-  },
-  {
-    id: '4',
-    name: 'Michael Brown',
-    title: 'DevOps Engineer',
-    avatar: '/placeholder.svg?height=200&width=200',
-    location: 'Austin, TX',
-    lookingForProject: false,
-    availability: null,
-    skills: ['Docker', 'Kubernetes', 'AWS', 'CI/CD'],
-    roles: ['DevOps Engineer'],
-    projectsCompleted: 10,
-    rating: 4.6,
-    bio: 'Infrastructure expert specializing in cloud-native solutions and automation.',
-  },
-  {
-    id: '5',
-    name: 'Sarah Wilson',
-    title: 'Project Manager',
-    avatar: '/placeholder.svg?height=200&width=200',
-    location: 'Chicago, IL',
-    lookingForProject: false,
-    availability: null,
-    skills: ['Agile', 'Scrum', 'Project Planning', 'Team Leadership'],
-    roles: ['Project Manager'],
-    projectsCompleted: 15,
-    rating: 4.9,
-    bio: 'Experienced project manager with a track record of delivering complex projects on time.',
-  },
-  {
-    id: '6',
-    name: 'David Lee',
-    title: 'Backend Developer',
-    avatar: '/placeholder.svg?height=200&width=200',
-    location: 'Boston, MA',
-    lookingForProject: true,
-    availability: 'Immediate',
-    skills: ['Node.js', 'Python', 'MongoDB', 'PostgreSQL'],
-    roles: ['Backend Developer'],
-    projectsCompleted: 9,
-    rating: 4.7,
-    bio: 'Backend specialist focused on building scalable and efficient server-side applications.',
-  },
-  {
-    id: '7',
-    name: 'Lisa Wang',
-    title: 'Mobile Developer',
-    avatar: '/placeholder.svg?height=200&width=200',
-    location: 'Los Angeles, CA',
-    lookingForProject: false,
-    availability: null,
-    skills: ['React Native', 'Swift', 'Kotlin', 'Firebase'],
-    roles: ['Mobile Developer'],
-    projectsCompleted: 7,
-    rating: 4.8,
-    bio: 'Mobile app developer with experience in both iOS and Android platforms.',
-  },
-  {
-    id: '8',
-    name: 'Alex Thompson',
-    title: 'Data Scientist',
-    avatar: '/placeholder.svg?height=200&width=200',
-    location: 'Denver, CO',
-    lookingForProject: true,
-    availability: '2 weeks',
-    skills: ['Python', 'Machine Learning', 'Data Analysis', 'TensorFlow'],
-    roles: ['Data Scientist'],
-    projectsCompleted: 5,
-    rating: 4.6,
-    bio: 'Data scientist specializing in machine learning and predictive analytics.',
-  },
-];
+// Fetch users from database
+async function fetchUsers() {
+  try {
+    const users = await db
+      .select({
+        id: usersTable.id,
+        username: usersTable.username,
+        email: usersTable.email,
+        projectsCompleted: userStatsTable.projects_completed,
+        teamsLed: userStatsTable.teams_led,
+        artifactsCreated: userStatsTable.artifacts_created,
+        contributions: userStatsTable.contributions,
+        rating: userStatsTable.rating,
+        title: userProfilesTable.title,
+        avatarUrl: userProfilesTable.avatar_url,
+        location: userProfilesTable.location,
+        about: userProfilesTable.about,
+        availabilityStatus: userProfilesTable.availability_status,
+        availabilityDate: userProfilesTable.availability_date,
+        technologyNames: sql<string[]>`ARRAY_AGG(${technologiesTable.name})`.as('technologyNames'), // Aggregate technology names
+      })
+      .from(usersTable)
+      .leftJoin(userStatsTable, sql`${usersTable.id} = ${userStatsTable.user_id}`) // Joining user_stats
+      .leftJoin(userProfilesTable, sql`${usersTable.id} = ${userProfilesTable.user_id}`) // Joining user_profiles
+      .leftJoin(usersToTechnologiesTable, sql`${usersTable.id} = ${usersToTechnologiesTable.userId}`) // Joining users_to_technologies
+      .leftJoin(technologiesTable, sql`${usersToTechnologiesTable.technologyId} = ${technologiesTable.id}`) // Joining technologies
+      .where(sql`${userProfilesTable.availability_status} = 'available'`) // Adding where clause
+      .groupBy(
+        usersTable.id,
+        usersTable.username,
+        usersTable.email,
+        userStatsTable.projects_completed,
+        userStatsTable.teams_led,
+        userStatsTable.artifacts_created,
+        userStatsTable.contributions,
+        userStatsTable.rating,
+        userProfilesTable.title,
+        userProfilesTable.avatar_url,
+        userProfilesTable.location,
+        userProfilesTable.about,
+        userProfilesTable.availability_status,
+        userProfilesTable.availability_date,
+      )
+      .limit(10);
+    return users;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
+}
 
-export default function UsersPage() {
-  // Sort users to show those looking for projects first
-  const sortedUsers = [...users].sort((a, b) => {
-    if (a.lookingForProject && !b.lookingForProject) {
-      return -1;
-    }
-    if (!a.lookingForProject && b.lookingForProject) {
-      return 1;
-    }
-    return 0;
-  });
+export default async function UsersPage() {
+  const users = await fetchUsers();
 
   return (
     <Container size="xl" py="xl">
@@ -199,19 +130,19 @@ export default function UsersPage() {
 
         <TabsPanel value="grid">
           <Grid>
-            {sortedUsers.map(user => (
+            {users.map(user => (
               <GridCol key={user.id} span={{ base: 12, md: 6, lg: 4, xl: 3 }}>
                 <Card shadow="sm" padding="md" radius="md" withBorder>
                   <Box
                     w="100%"
                     h={4}
-                    bg={user.lookingForProject ? 'blue' : 'gray.3'}
+                    bg={user.availabilityStatus === 'available' ? 'blue' : 'gray.3'}
                     mb="md"
                     style={{ marginLeft: -16, marginRight: -16, marginTop: -16, width: 'calc(100% + 32px)' }}
                   />
                   <Flex direction="column" align="center" mb="md">
-                    <Avatar src={user.avatar} alt={user.name} size="xl" radius="xl" mb="md">
-                      {user.name
+                    <Avatar src={user.avatarUrl} alt={user.username} size="xl" radius="xl" mb="md">
+                      {user.username
                         .split(' ')
                         .map(n => n[0])
                         .join('')}
@@ -224,7 +155,7 @@ export default function UsersPage() {
                         fw={700}
                         style={{ textDecoration: 'none' }}
                       >
-                        {user.name}
+                        {user.username}
                       </Text>
                       <Text size="sm" c="dimmed">
                         {user.title}
@@ -237,7 +168,7 @@ export default function UsersPage() {
                       </Group>
                     </Stack>
 
-                    {user.lookingForProject && (
+                    {user.availabilityStatus === 'available' && (
                       <Badge mt="sm" leftSection={<IconBriefcase size={14} />}>
                         Looking for Projects
                       </Badge>
@@ -245,7 +176,7 @@ export default function UsersPage() {
                   </Flex>
 
                   <Text size="sm" c="dimmed" lineClamp={2} mb="md">
-                    {user.bio}
+                    {user.about}
                   </Text>
 
                   <Stack gap="md">
@@ -254,9 +185,9 @@ export default function UsersPage() {
                         Top Skills
                       </Text>
                       <Group gap="xs">
-                        {user.skills.slice(0, 4).map(skill => (
-                          <Badge key={skill} variant="outline" size="xs">
-                            {skill}
+                        {user.technologyNames.map((tech, index) => (
+                          <Badge key={index} variant="outline" size="xs">
+                            {tech}
                           </Badge>
                         ))}
                       </Group>
@@ -299,20 +230,20 @@ export default function UsersPage() {
               </Grid>
             </Box>
 
-            {sortedUsers.map((user, index) => (
+            {users.map((user, index) => (
               <Box key={user.id} p="md" bg={index % 2 === 0 ? 'white' : 'gray.0'}>
                 <Grid align="center">
                   <GridCol span={4}>
                     <Group>
-                      <Avatar src={user.avatar} alt={user.name} radius="xl">
-                        {user.name
+                      <Avatar src={user.avatarUrl} alt={user.username} radius="xl">
+                        {user.username
                           .split(' ')
                           .map(n => n[0])
                           .join('')}
                       </Avatar>
                       <Stack gap={0}>
                         <Text component={Link} href={`/users/${user.id}`} fw={500} style={{ textDecoration: 'none' }}>
-                          {user.name}
+                          {user.username}
                         </Text>
                         <Group gap="xs">
                           <IconMapPin size={14} style={{ color: 'var(--mantine-color-dimmed)' }} />
@@ -328,15 +259,15 @@ export default function UsersPage() {
                   </GridCol>
                   <GridCol span={2}>
                     <Group gap="xs">
-                      {user.skills.slice(0, 2).map(skill => (
-                        <Badge key={skill} variant="outline" size="xs">
-                          {skill}
+                      {user.technologyNames.slice(0, 2).map((tech, index) => (
+                        <Badge key={index} variant="outline" size="xs">
+                          {tech}
                         </Badge>
                       ))}
-                      {user.skills.length > 2 && (
+                      {user.technologyNames.length > 2 && (
                         <Badge variant="outline" size="xs">
                           +
-                          {user.skills.length - 2}
+                          {user.technologyNames.length - 2}
                         </Badge>
                       )}
                     </Group>
@@ -350,11 +281,15 @@ export default function UsersPage() {
                     </Group>
                   </GridCol>
                   <GridCol span={2}>
-                    {user.lookingForProject
+                    {user.availabilityStatus === 'available'
                       ? (
                           <Badge leftSection={<IconBriefcase size={14} />}>
                             Available
-                            {user.availability}
+                            {user.availabilityDate && (
+                              <Text size="xs" c="dimmed">
+                                {/* {user.availability_date} */}
+                              </Text>
+                            )}
                           </Badge>
                         )
                       : (
