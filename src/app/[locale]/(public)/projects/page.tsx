@@ -74,7 +74,7 @@ export async function generateMetadata(props: ProjectsPageProps) {
 }
 
 // Fetch projects from database
-async function fetchProjects() {
+async function fetchProjects({ limit = 10 }: { limit?: number }) {
   try {
     const projects = await db.query.projectsTable.findMany({
       with: {
@@ -86,7 +86,7 @@ async function fetchProjects() {
         category: true,
       },
       orderBy: desc(projectsTable.lastUpdated),
-      limit: 10,
+      limit,
     });
     return projects;
   } catch (error) {
@@ -104,7 +104,7 @@ export default async function ProjectsPage(props: ProjectsPageProps) {
     namespace: 'Projects',
   });
 
-  const projects = await fetchProjects();
+  const projects = await fetchProjects({ limit: 20 });
 
   return (
     <Box p="md">
@@ -196,7 +196,7 @@ export default async function ProjectsPage(props: ProjectsPageProps) {
                       </Flex>
                       <Flex align="center" gap="xs">
                         <IconChartBar size={16} stroke={1.5} />
-                        <Text>{project.technologies.join(', ')}</Text>
+                        <Text>{project.technologies.map(tech => tech.technology?.name || '').join(', ')}</Text>
                       </Flex>
                     </Flex>
                   </CardSection>

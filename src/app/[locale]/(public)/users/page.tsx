@@ -8,7 +8,13 @@ import { sql } from 'drizzle-orm';
 import Link from 'next/link';
 
 // Fetch users from database
-async function fetchUsers() {
+async function fetchUsers({
+  availabilityStatus = 'available',
+  limit = 10,
+}: {
+  availabilityStatus: string;
+  limit: number;
+}) {
   try {
     const users = await db
       .select({
@@ -33,7 +39,7 @@ async function fetchUsers() {
       .leftJoin(userProfilesTable, sql`${usersTable.id} = ${userProfilesTable.user_id}`) // Joining user_profiles
       .leftJoin(usersToTechnologiesTable, sql`${usersTable.id} = ${usersToTechnologiesTable.userId}`) // Joining users_to_technologies
       .leftJoin(technologiesTable, sql`${usersToTechnologiesTable.technologyId} = ${technologiesTable.id}`) // Joining technologies
-      .where(sql`${userProfilesTable.availability_status} = 'available'`) // Adding where clause
+      .where(sql`${userProfilesTable.availability_status} = ${availabilityStatus}`) // Adding where clause
       .groupBy(
         usersTable.id,
         usersTable.username,
@@ -50,7 +56,7 @@ async function fetchUsers() {
         userProfilesTable.availability_status,
         userProfilesTable.availability_date,
       )
-      .limit(10);
+      .limit(limit);
     return users;
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -59,9 +65,22 @@ async function fetchUsers() {
 }
 
 export default async function UsersPage() {
-  const users = await fetchUsers();
+  const availableUsers = await fetchUsers({
+    availabilityStatus: 'available',
+    limit: 100,
+  });
 
-  console.log(users);
+  const notAvailableUsers = await fetchUsers({
+    availabilityStatus: 'not available',
+    limit: 100,
+  });
+
+  const idleUsers = await fetchUsers({
+    availabilityStatus: 'idle',
+    limit: 100,
+  });
+
+  const users = [...availableUsers, ...notAvailableUsers, ...idleUsers];
 
   return (
     <Container size="xl" py="xl">

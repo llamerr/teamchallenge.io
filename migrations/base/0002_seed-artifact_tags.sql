@@ -1,7 +1,22 @@
--- Seed artifact tags
+-- Seed artifact tags with 20 comprehensive tags
 INSERT INTO artifact_tags (name, description) VALUES 
 ('e-commerce', 'Artifacts related to online shopping and retail platforms'),
 ('database', 'Database design and schema artifacts'),
 ('sql', 'Structured Query Language related artifacts'),
 ('schema', 'Database or system schema designs'),
-('beginner-friendly', 'Artifacts suitable for beginners');
+('beginner-friendly', 'Artifacts suitable for beginners'),
+('ui-design', 'User interface design artifacts and resources'),
+('machine-learning', 'Artifacts related to artificial intelligence and machine learning'),
+('iot', 'Internet of Things related artifacts'),
+('cloud-computing', 'Artifacts focusing on cloud infrastructure and services'),
+('mobile-development', 'Mobile application development resources'),
+('web-development', 'Web application and website development artifacts'),
+('data-visualization', 'Tools and designs for presenting data graphically'),
+('cybersecurity', 'Security-focused design and implementation artifacts'),
+('blockchain', 'Distributed ledger and cryptocurrency-related artifacts'),
+('devops', 'Continuous integration, deployment, and infrastructure artifacts'),
+('enterprise-architecture', 'Large-scale system design and architectural patterns'),
+('real-time', 'Artifacts supporting live, instantaneous data processing'),
+('microservices', 'Distributed system design following microservices architecture'),
+('frontend-framework', 'Artifacts related to modern frontend development frameworks'),
+('backend-optimization', 'Performance and scalability-focused backend artifacts');

@@ -4,14 +4,28 @@ INSERT INTO artifact_categories (slug, name, description, icon) VALUES
 ('database', 'Database Schema', 'Database design and schema definitions', 'database'),
 ('ui-design', 'UI Design', 'User interface design files', 'layout'),
 ('presentation', 'Presentation', 'Pitch decks and presentation materials', 'file');
--- Seed artifact tags
+-- Seed artifact tags with 20 comprehensive tags
 INSERT INTO artifact_tags (name, description) VALUES 
 ('e-commerce', 'Artifacts related to online shopping and retail platforms'),
 ('database', 'Database design and schema artifacts'),
 ('sql', 'Structured Query Language related artifacts'),
 ('schema', 'Database or system schema designs'),
-('beginner-friendly', 'Artifacts suitable for beginners');
--- Seed project categories
+('beginner-friendly', 'Artifacts suitable for beginners'),
+('ui-design', 'User interface design artifacts and resources'),
+('machine-learning', 'Artifacts related to artificial intelligence and machine learning'),
+('iot', 'Internet of Things related artifacts'),
+('cloud-computing', 'Artifacts focusing on cloud infrastructure and services'),
+('mobile-development', 'Mobile application development resources'),
+('web-development', 'Web application and website development artifacts'),
+('data-visualization', 'Tools and designs for presenting data graphically'),
+('cybersecurity', 'Security-focused design and implementation artifacts'),
+('blockchain', 'Distributed ledger and cryptocurrency-related artifacts'),
+('devops', 'Continuous integration, deployment, and infrastructure artifacts'),
+('enterprise-architecture', 'Large-scale system design and architectural patterns'),
+('real-time', 'Artifacts supporting live, instantaneous data processing'),
+('microservices', 'Distributed system design following microservices architecture'),
+('frontend-framework', 'Artifacts related to modern frontend development frameworks'),
+('backend-optimization', 'Performance and scalability-focused backend artifacts');-- Seed project categories
 INSERT INTO project_categories (slug, name, description, icon) VALUES
   ('spa', 'Single Page Application', 'Web applications that dynamically update content without full page reloads', 'code'),
   ('ssr-app', 'Server-Side Rendering Application', 'Web applications rendered on the server for improved performance and SEO', 'shopping-cart'),
@@ -23,26 +37,52 @@ INSERT INTO technologies (name, category) VALUES
   ('Next.js', 'Frontend'),
   ('React', 'Frontend'),
   ('Vue.js', 'Frontend'),
+  ('Svelte', 'Frontend'),
+  ('Angular', 'Frontend'),
   ('React Native', 'Mobile'),
+  ('Flutter', 'Mobile'),
+  ('Kotlin', 'Mobile'),
+  ('Swift', 'Mobile'),
   ('PostgreSQL', 'Database'),
   ('MongoDB', 'Database'),
+  ('MySQL', 'Database'),
+  ('Redis', 'Database'),
+  ('Cassandra', 'Database'),
   ('Node.js', 'Backend'),
   ('Express', 'Backend'),
+  ('Nest.js', 'Backend'),
+  ('Django', 'Backend'),
+  ('Flask', 'Backend'),
   ('Socket.io', 'Backend'),
+  ('GraphQL', 'Backend'),
   ('Stripe', 'Payment'),
+  ('PayPal', 'Payment'),
+  ('Braintree', 'Payment'),
   ('Tailwind CSS', 'Styling'),
+  ('SASS', 'Styling'),
+  ('CSS Modules', 'Styling'),
   ('Unity', 'Game Engine'),
+  ('Unreal Engine', 'Game Engine'),
+  ('Godot', 'Game Engine'),
   ('C#', 'Programming Language'),
+  ('Python', 'Programming Language'),
+  ('Rust', 'Programming Language'),
+  ('Go', 'Programming Language'),
+  ('TypeScript', 'Programming Language'),
   ('Chart.js', 'Visualization'),
+  ('D3.js', 'Visualization'),
+  ('Plotly', 'Visualization'),
   ('Weather API', 'API'),
   ('Geolocation', 'API'),
-  ('Prisma', 'Database'),
+  ('OpenAI', 'API'),
+  ('Google Maps', 'API'),
+  ('Prisma', 'Database ORM'),
   ('Markdown', 'Styling'),
-  ('Redis', 'Database'),
   ('JWT', 'Security'),
+  ('OAuth', 'Security'),
   ('Docker', 'DevOps'),
-  ('Sprite Animation', 'Game Engine');
--- Seed roles
+  ('Kubernetes', 'DevOps'),
+  ('Terraform', 'DevOps');-- Seed roles
 INSERT INTO roles (name, description, typical_skills, default_count) VALUES
   ('Frontend Developer', 'Responsible for client-side application development', ARRAY['React', 'CSS', 'JavaScript', 'UI/UX'], 1),
   ('Backend Developer', 'Handles server-side logic and database interactions', ARRAY['Node.js', 'API Design', 'Database Management'], 1),
@@ -64,7 +104,7 @@ INSERT INTO languages (name, description) VALUES
   ('Japanese', 'Japanese language'),
   ('Russian', 'Russian language'),
   ('Portuguese', 'Portuguese language');
--- Populate artifacts
+-- Populate artifacts with 20 entries
 INSERT INTO artifacts (
     title, 
     description, 
@@ -181,15 +221,303 @@ INSERT INTO artifacts (
     65,
     'published',
     true
-);
--- Link tags to artifacts
+),
+(
+    'Machine Learning Model Architecture', 
+    'Detailed architecture document for a deep learning image classification model.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'design-doc'),
+    512000, -- 500KB
+    '/artifacts/ml_model_architecture.pdf',
+    '1.0.0',
+    'original',
+    64,
+    45,
+    'published',
+    true
+),
+(
+    'IoT Home Automation Diagram', 
+    'Comprehensive system diagram for a home automation platform with device interactions.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'design-doc'),
+    2097152, -- 2MB
+    '/artifacts/iot_home_automation_diagram.visio',
+    '1.0.0',
+    'original',
+    53,
+    37,
+    'published',
+    true
+),
+(
+    'Cryptocurrency Trading Bot UML', 
+    'Unified Modeling Language (UML) diagram for a sophisticated trading algorithm.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'design-doc'),
+    1048576, -- 1MB
+    '/artifacts/trading_bot_uml.xml',
+    '1.0.0',
+    'original',
+    78,
+    52,
+    'published',
+    true
+),
+(
+    'Real-time Chat App Wireframes', 
+    'Comprehensive UI/UX wireframes for a real-time communication application.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'ui-design'),
+    5242880, -- 5MB
+    '/artifacts/chat_app_wireframes.xd',
+    '1.0.0',
+    'original',
+    91,
+    48,
+    'published',
+    true
+),
+(
+    'E-learning Platform ER Diagram', 
+    'Entity-Relationship diagram for an online learning management system.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'database'),
+    40960, -- 40KB
+    '/artifacts/elearning_er_diagram.sql',
+    '1.0.0',
+    'original',
+    67,
+    39,
+    'published',
+    true
+),
+(
+    'Personal Finance Dashboard Mockup', 
+    'High-fidelity UI mockup for a comprehensive personal finance tracking application.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'ui-design'),
+    7340032, -- 7MB
+    '/artifacts/finance_dashboard_mockup.psd',
+    '1.0.0',
+    'original',
+    82,
+    47,
+    'published',
+    true
+),
+(
+    'Game Development Technical Design', 
+    'Technical design document for a 2D platformer game engine and mechanics.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'design-doc'),
+    768000, -- 750KB
+    '/artifacts/game_dev_technical_design.docx',
+    '1.0.0',
+    'original',
+    59,
+    33,
+    'published',
+    true
+),
+(
+    'Travel Booking System Schema', 
+    'Comprehensive database schema for a multi-platform travel booking application.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'database'),
+    51200, -- 50KB
+    '/artifacts/travel_booking_schema.sql',
+    '1.0.0',
+    'original',
+    105,
+    62,
+    'published',
+    true
+),
+(
+    'Healthcare App Network Architecture', 
+    'Detailed network architecture for a secure patient management and telemedicine platform.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'design-doc'),
+    1572864, -- 1.5MB
+    '/artifacts/healthcare_network_architecture.vsdx',
+    '1.0.0',
+    'original',
+    71,
+    42,
+    'published',
+    true
+),
+(
+    'Streaming Platform UI Kit', 
+    'Comprehensive UI design kit for a multi-platform media streaming application.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'ui-design'),
+    10485760, -- 10MB
+    '/artifacts/streaming_platform_ui_kit.sketch',
+    '1.0.0',
+    'original',
+    88,
+    51,
+    'published',
+    true
+),
+(
+    'E-commerce Payment Gateway Design', 
+    'Secure payment gateway architecture for an online marketplace platform.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'design-doc'),
+    614400, -- 600KB
+    '/artifacts/payment_gateway_design.pdf',
+    '1.0.0',
+    'original',
+    96,
+    58,
+    'published',
+    true
+),
+(
+    'Social Network Graph Database', 
+    'Complex graph database schema for a sophisticated social networking platform.', 
+    (SELECT id FROM artifact_categories WHERE slug = 'database'),
+    36864, -- 36KB
+    '/artifacts/social_network_graph_schema.sql',
+    '1.0.0',
+    'original',
+    103,
+    61,
+    'published',
+    true
+);-- Link artifacts to tags randomly
 INSERT INTO artifacts_to_artifact_tags (artifact_id, artifact_tag_id) VALUES 
-(1, (SELECT id FROM artifact_tags WHERE name = 'e-commerce')),
-(1, (SELECT id FROM artifact_tags WHERE name = 'database')),
-(1, (SELECT id FROM artifact_tags WHERE name = 'sql')),
-(1, (SELECT id FROM artifact_tags WHERE name = 'schema')),
-(1, (SELECT id FROM artifact_tags WHERE name = 'beginner-friendly'));
--- Seed projects
+-- Artifact 1 (E-commerce Database Schema)
+(1, 1),  -- e-commerce
+(1, 2),  -- database
+(1, 3),  -- sql
+(1, 4),  -- schema
+(1, 5),  -- beginner-friendly
+
+-- Artifact 2 (Task Manager UI Design)
+(2, 6),   -- ui-design
+(2, 11),  -- web-development
+(2, 19),  -- frontend-framework
+(2, 17),  -- real-time
+(2, 9),   -- cloud-computing
+
+-- Artifact 3 (Social Media App Architecture)
+(3, 16),  -- enterprise-architecture
+(3, 11),  -- web-development
+(3, 18),  -- microservices
+(3, 15),  -- devops
+(3, 20),  -- backend-optimization
+
+-- Artifact 4 (Weather App Presentation)
+(4, 10),  -- mobile-development
+(4, 6),   -- ui-design
+(4, 17),  -- real-time
+(4, 9),   -- cloud-computing
+(4, 19),  -- frontend-framework
+
+-- Artifact 5 (Fitness Tracker Database Schema)
+(5, 2),   -- database
+(5, 3),   -- sql
+(5, 4),   -- schema
+(5, 10),  -- mobile-development
+(5, 20),  -- backend-optimization
+
+-- Artifact 6 (Recipe App Wireframes)
+(6, 6),   -- ui-design
+(6, 11),  -- web-development
+(6, 19),  -- frontend-framework
+(6, 10),  -- mobile-development
+(6, 17),  -- real-time
+
+-- Artifact 7 (Blog Platform Database Design)
+(7, 2),   -- database
+(7, 3),   -- sql
+(7, 11),  -- web-development
+(7, 16),  -- enterprise-architecture
+(7, 15),  -- devops
+
+-- Artifact 8 (Inventory Management Schema)
+(8, 2),   -- database
+(8, 3),   -- sql
+(8, 4),   -- schema
+(8, 15),  -- devops
+(8, 20),  -- backend-optimization
+
+-- Artifact 9 (Machine Learning Model Architecture)
+(9, 7),   -- machine-learning
+(9, 16),  -- enterprise-architecture
+(9, 11),  -- web-development
+(9, 20),  -- backend-optimization
+(9, 17),  -- real-time
+
+-- Artifact 10 (IoT Home Automation Diagram)
+(10, 8),  -- iot
+(10, 9),  -- cloud-computing
+(10, 16), -- enterprise-architecture
+(10, 17), -- real-time
+(10, 15), -- devops
+
+-- Artifact 11 (Cryptocurrency Trading Bot UML)
+(11, 14), -- blockchain
+(11, 18), -- microservices
+(11, 15), -- devops
+(11, 17), -- real-time
+(11, 20), -- backend-optimization
+
+-- Artifact 12 (Real-time Chat App Wireframes)
+(12, 6),  -- ui-design
+(12, 11), -- web-development
+(12, 17), -- real-time
+(12, 19), -- frontend-framework
+(12, 10), -- mobile-development
+
+-- Artifact 13 (E-learning Platform ER Diagram)
+(13, 2),  -- database
+(13, 3),  -- sql
+(13, 4),  -- schema
+(13, 11), -- web-development
+(13, 16), -- enterprise-architecture
+
+-- Artifact 14 (Personal Finance Dashboard Mockup)
+(14, 6),  -- ui-design
+(14, 11), -- web-development
+(14, 12), -- data-visualization
+(14, 19), -- frontend-framework
+(14, 20), -- backend-optimization
+
+-- Artifact 15 (Game Development Technical Design)
+(15, 16), -- enterprise-architecture
+(15, 11), -- web-development
+(15, 18), -- microservices
+(15, 15), -- devops
+(15, 19), -- frontend-framework
+
+-- Artifact 16 (Travel Booking System Schema)
+(16, 2),  -- database
+(16, 3),  -- sql
+(16, 4),  -- schema
+(16, 11), -- web-development
+(16, 9),  -- cloud-computing
+
+-- Artifact 17 (Healthcare App Network Architecture)
+(17, 13), -- cybersecurity
+(17, 16), -- enterprise-architecture
+(17, 15), -- devops
+(17, 18), -- microservices
+(17, 20), -- backend-optimization
+
+-- Artifact 18 (Streaming Platform UI Kit)
+(18, 6),  -- ui-design
+(18, 11), -- web-development
+(18, 19), -- frontend-framework
+(18, 10), -- mobile-development
+(18, 17), -- real-time
+
+-- Artifact 19 (E-commerce Payment Gateway Design)
+(19, 1),  -- e-commerce
+(19, 13), -- cybersecurity
+(19, 11), -- web-development
+(19, 15), -- devops
+(19, 20), -- backend-optimization
+
+-- Artifact 20 (Social Network Graph Database)
+(20, 2),  -- database
+(20, 18), -- microservices
+(20, 11), -- web-development
+(20, 16), -- enterprise-architecture
+(20, 15); -- devops-- Seed projects
 INSERT INTO projects (
   title, 
   description, 
@@ -430,108 +758,261 @@ INSERT INTO projects (
   );
 -- Seed project technologies
 INSERT INTO projects_to_technologies (project_id, technology_id, "primary") VALUES
-  (1, (SELECT id FROM technologies WHERE name = 'Next.js'), true),
-  (1, (SELECT id FROM technologies WHERE name = 'PostgreSQL'), true),
-  (1, (SELECT id FROM technologies WHERE name = 'Stripe'), false),
-  (1, (SELECT id FROM technologies WHERE name = 'Tailwind CSS'), false),
-  (2, (SELECT id FROM technologies WHERE name = 'React'), true),
-  (2, (SELECT id FROM technologies WHERE name = 'Socket.io'), true),
-  (2, (SELECT id FROM technologies WHERE name = 'Express'), false),
-  (2, (SELECT id FROM technologies WHERE name = 'MongoDB'), false),
-  -- Task Management System
-  (3, (SELECT id FROM technologies WHERE name = 'Vue.js'), true),
-  (3, (SELECT id FROM technologies WHERE name = 'Node.js'), false),
-  (3, (SELECT id FROM technologies WHERE name = 'Express'), false),
-  (3, (SELECT id FROM technologies WHERE name = 'MongoDB'), false),
-  -- Mobile Weather App
-  (4, (SELECT id FROM technologies WHERE name = 'React Native'), true),
-  (4, (SELECT id FROM technologies WHERE name = 'Weather API'), false),
-  (4, (SELECT id FROM technologies WHERE name = 'Geolocation'), false),
-  -- Blog Platform
-  (5, (SELECT id FROM technologies WHERE name = 'Next.js'), true),
-  (5, (SELECT id FROM technologies WHERE name = 'Prisma'), false),
-  (5, (SELECT id FROM technologies WHERE name = 'PostgreSQL'), false),
-  (5, (SELECT id FROM technologies WHERE name = 'Markdown'), false),
-  -- API Gateway Service
-  (6, (SELECT id FROM technologies WHERE name = 'Node.js'), true),
-  (6, (SELECT id FROM technologies WHERE name = 'Express'), true),
-  (6, (SELECT id FROM technologies WHERE name = 'Redis'), false),
-  (6, (SELECT id FROM technologies WHERE name = 'JWT'), false),
-  (6, (SELECT id FROM technologies WHERE name = 'Docker'), false),
-  -- 2D Platformer Game
-  (7, (SELECT id FROM technologies WHERE name = 'Unity'), true),
-  (7, (SELECT id FROM technologies WHERE name = 'C#'), true),
-  (7, (SELECT id FROM technologies WHERE name = 'Sprite Animation'), false),
-  -- Personal Finance Tracker
-  (8, (SELECT id FROM technologies WHERE name = 'React'), true),
-  (8, (SELECT id FROM technologies WHERE name = 'Node.js'), false),
-  (8, (SELECT id FROM technologies WHERE name = 'Chart.js'), false),
-  (8, (SELECT id FROM technologies WHERE name = 'MongoDB'), false);
--- Seed project roles
+  -- Project 1
+  (1, 1, true),
+  (1, 2, true),
+  (1, 3, false),
+  (1, 4, false),
+  (1, 5, false),
+
+  -- Project 2
+  (2, 6, true),
+  (2, 7, true),
+  (2, 8, false),
+  (2, 9, false),
+  (2, 10, false),
+
+  -- Project 3
+  (3, 11, true),
+  (3, 12, true),
+  (3, 13, false),
+  (3, 14, false),
+  (3, 3, false),
+
+  -- Project 4
+  (4, 15, true),
+  (4, 16, true),
+  (4, 17, false),
+  (4, 18, false),
+  (4, 19, false),
+
+  -- Project 5
+  (5, 1, true),
+  (5, 20, true),
+  (5, 2, false),
+  (5, 21, false),
+  (5, 22, false),
+
+  -- Project 6
+  (6, 7, true),
+  (6, 23, true),
+  (6, 10, false),
+  (6, 5, false),
+  (6, 24, false),
+
+  -- Project 7
+  (7, 25, true),
+  (7, 26, true),
+  (7, 27, false),
+  (7, 28, false),
+  (7, 29, false),
+
+  -- Project 8
+  (8, 6, true),
+  (8, 30, true),
+  (8, 19, false),
+  (8, 13, false),
+  (8, 31, false),
+
+  -- Project 9
+  (9, 32, true),
+  (9, 33, true),
+  (9, 2, false),
+  (9, 14, false),
+  (9, 34, false),
+
+  -- Project 10
+  (10, 35, true),
+  (10, 36, true),
+  (10, 37, false),
+  (10, 21, false),
+  (10, 19, false),
+
+  -- Project 11
+  (11, 38, true),
+  (11, 39, true),
+  (11, 40, false),
+  (11, 18, false),
+  (11, 14, false),
+
+  -- Project 12
+  (12, 40, true),
+  (12, 26, true),
+  (12, 27, false),
+  (12, 29, false),
+  (12, 5, false),
+
+  -- Project 13
+  (13, 41, true),
+  (13, 11, true),
+  (13, 24, false),
+  (13, 9, false),
+  (13, 8, false);-- Seed project roles
 INSERT INTO projects_to_roles (project_id, role_id, count, specific_skills) VALUES
-  (1, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['Next.js', 'Tailwind CSS']),
-  (1, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Node.js', 'PostgreSQL']),
-  (1, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['E-commerce UX']),
-  (1, (SELECT id FROM roles WHERE name = 'DevOps Engineer'), 1, ARRAY['Stripe Integration']),
-  (2, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['React', 'WebSockets']),
-  (2, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Socket.io', 'MongoDB']),
-  (2, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Chat App Design']),
-  -- Task Management System
-  (3, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['Vue.js', 'State Management']),
-  (3, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Node.js', 'MongoDB']),
-  (3, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Project Management UI']),
-  -- Mobile Weather App
-  (4, (SELECT id FROM roles WHERE name = 'Mobile Developer'), 1, ARRAY['React Native', 'Mobile UI']),
-  (4, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Weather App Design']),
-  -- Blog Platform
-  (5, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['Next.js', 'Markdown Rendering']),
-  (5, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Prisma', 'PostgreSQL']),
-  (5, (SELECT id FROM roles WHERE name = 'Content Strategist'), 1, ARRAY['Blog Content Planning']),
-  -- API Gateway Service
-  (6, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Microservices', 'API Design']),
-  (6, (SELECT id FROM roles WHERE name = 'DevOps Engineer'), 1, ARRAY['Docker', 'Containerization']),
-  (6, (SELECT id FROM roles WHERE name = 'Security Specialist'), 1, ARRAY['Authentication', 'Rate Limiting']),
-  -- 2D Platformer Game
-  (7, (SELECT id FROM roles WHERE name = 'Game Developer'), 1, ARRAY['Unity', 'Game Mechanics']),
-  (7, (SELECT id FROM roles WHERE name = 'Artist'), 1, ARRAY['2D Art', 'Sprite Design']),
-  (7, (SELECT id FROM roles WHERE name = 'Sound Designer'), 1, ARRAY['Game Audio']),
-  -- Personal Finance Tracker
-  (8, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['React', 'Data Visualization']),
-  (8, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Node.js', 'Financial Data Processing']);
--- Seed project learning outcomes
+  -- Project 1 (E-commerce Platform)
+  (1, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['Next.js', 'Tailwind CSS', 'Responsive Design']),
+  (1, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Node.js', 'PostgreSQL', 'Payment Integration']),
+  (1, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['E-commerce UX', 'User Flow Design']),
+  (1, (SELECT id FROM roles WHERE name = 'DevOps Engineer'), 1, ARRAY['Stripe Integration', 'Cloud Deployment']),
+  (1, (SELECT id FROM roles WHERE name = 'Security Specialist'), 1, ARRAY['Payment Security', 'Data Protection']),
+
+  -- Project 2 (Real-time Chat Application)
+  (2, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['React', 'WebSockets', 'State Management']),
+  (2, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Socket.io', 'Node.js', 'Real-time Communication']),
+  (2, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Chat App Design', 'Interaction Design']),
+  (2, (SELECT id FROM roles WHERE name = 'Security Specialist'), 1, ARRAY['User Authentication', 'Message Encryption']),
+  (2, (SELECT id FROM roles WHERE name = 'DevOps Engineer'), 1, ARRAY['Scalability', 'Cloud Infrastructure']),
+
+  -- Project 3 (Task Management System)
+  (3, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['Vue.js', 'State Management', 'Responsive Design']),
+  (3, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Nest.js', 'MongoDB', 'API Development']),
+  (3, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Project Management UI', 'User Workflow']),
+  (3, (SELECT id FROM roles WHERE name = 'Product Manager'), 1, ARRAY['Feature Planning', 'User Research']),
+  (3, (SELECT id FROM roles WHERE name = 'QA Specialist'), 1, ARRAY['Automated Testing', 'User Experience Testing']),
+
+  -- Project 4 (Mobile Weather App)
+  (4, (SELECT id FROM roles WHERE name = 'Mobile Developer'), 2, ARRAY['React Native', 'Flutter', 'Mobile UI']),
+  (4, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Weather App Design', 'Mobile UX']),
+  (4, (SELECT id FROM roles WHERE name = 'Data Analyst'), 1, ARRAY['Weather API Integration', 'Data Visualization']),
+  (4, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['API Aggregation', 'Geolocation Services']),
+
+  -- Project 5 (Blog Platform)
+  (5, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['Next.js', 'Markdown Rendering', 'SEO Optimization']),
+  (5, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Prisma', 'PostgreSQL', 'Content Management']),
+  (5, (SELECT id FROM roles WHERE name = 'Content Strategist'), 1, ARRAY['Blog Content Planning', 'Editorial Strategy']),
+  (5, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Reading Experience', 'Content Layout']),
+  (5, (SELECT id FROM roles WHERE name = 'SEO Specialist'), 1, ARRAY['Search Engine Optimization', 'Content Tagging']),
+
+  -- Project 6 (API Gateway Service)
+  (6, (SELECT id FROM roles WHERE name = 'Backend Developer'), 2, ARRAY['Microservices', 'API Design', 'System Architecture']),
+  (6, (SELECT id FROM roles WHERE name = 'DevOps Engineer'), 1, ARRAY['Docker', 'Kubernetes', 'Cloud Infrastructure']),
+  (6, (SELECT id FROM roles WHERE name = 'Security Specialist'), 1, ARRAY['Authentication', 'Rate Limiting', 'Penetration Testing']),
+  (6, (SELECT id FROM roles WHERE name = 'Performance Engineer'), 1, ARRAY['Load Balancing', 'Optimization Strategies']),
+
+  -- Project 7 (2D Platformer Game)
+  (7, (SELECT id FROM roles WHERE name = 'Game Developer'), 1, ARRAY['Unity', 'Game Mechanics', 'C# Programming']),
+  (7, (SELECT id FROM roles WHERE name = 'Artist'), 1, ARRAY['2D Art', 'Sprite Design', 'Character Animation']),
+  (7, (SELECT id FROM roles WHERE name = 'Sound Designer'), 1, ARRAY['Game Audio', 'Sound Effects', 'Music Composition']),
+  (7, (SELECT id FROM roles WHERE name = 'Game Designer'), 1, ARRAY['Level Design', 'Game Balance', 'Player Experience']),
+  (7, (SELECT id FROM roles WHERE name = 'QA Specialist'), 1, ARRAY['Game Testing', 'Bug Tracking']),
+
+  -- Project 8 (Personal Finance Tracker)
+  (8, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['React', 'Data Visualization', 'Financial Dashboard']),
+  (8, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Python', 'Financial Data Processing', 'Security']),
+  (8, (SELECT id FROM roles WHERE name = 'Data Analyst'), 1, ARRAY['Financial Insights', 'Trend Analysis']),
+  (8, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Financial App Design', 'User-Friendly Interfaces']),
+  (8, (SELECT id FROM roles WHERE name = 'Security Specialist'), 1, ARRAY['Financial Data Protection', 'Compliance']),
+
+  -- Project 9 (Health Tracking Application)
+  (9, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['Svelte', 'Responsive Design', 'Interactive Graphs']),
+  (9, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Flask', 'Data Processing', 'Machine Learning Integration']),
+  (9, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Health App UX', 'Intuitive Tracking']),
+  (9, (SELECT id FROM roles WHERE name = 'Data Scientist'), 1, ARRAY['Health Metrics', 'Predictive Analytics']),
+  (9, (SELECT id FROM roles WHERE name = 'Mobile Developer'), 1, ARRAY['Cross-Platform Development', 'Mobile Optimization']),
+
+  -- Project 10 (Education Platform)
+  (10, (SELECT id FROM roles WHERE name = 'Frontend Developer'), 1, ARRAY['Angular', 'Interactive Learning Components']),
+  (10, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Django', 'Course Management System']),
+  (10, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Educational Platform Design', 'User Engagement']),
+  (10, (SELECT id FROM roles WHERE name = 'Content Creator'), 1, ARRAY['Curriculum Development', 'Educational Content']),
+  (10, (SELECT id FROM roles WHERE name = 'Accessibility Specialist'), 1, ARRAY['Inclusive Design', 'Learning Accessibility']),
+
+  -- Project 11 (Location-based Social Network)
+  (11, (SELECT id FROM roles WHERE name = 'Mobile Developer'), 2, ARRAY['Kotlin', 'Swift', 'Cross-Platform Development']),
+  (11, (SELECT id FROM roles WHERE name = 'Backend Developer'), 1, ARRAY['Geolocation Services', 'Real-time Updates']),
+  (11, (SELECT id FROM roles WHERE name = 'UI/UX Designer'), 1, ARRAY['Social Network Design', 'Map Interface']),
+  (11, (SELECT id FROM roles WHERE name = 'Data Analyst'), 1, ARRAY['User Behavior Analysis', 'Location Insights']),
+
+  -- Project 12 (Multiplayer Game)
+  (12, (SELECT id FROM roles WHERE name = 'Game Developer'), 1, ARRAY['Unreal Engine', 'Multiplayer Mechanics']),
+  (12, (SELECT id FROM roles WHERE name = 'Game Designer'), 1, ARRAY['Game Balance', 'Player Interaction Design']),
+  (12, (SELECT id FROM roles WHERE name = '3D Artist'), 1, ARRAY['Character Modeling', 'Environment Design']),
+  (12, (SELECT id FROM roles WHERE name = 'Network Engineer'), 1, ARRAY['Multiplayer Synchronization', 'Low-Latency Networking']),
+  (12, (SELECT id FROM roles WHERE name = 'Sound Designer'), 1, ARRAY['Immersive Audio', 'Sound Effects']),
+
+  -- Project 13 (Distributed Computing Platform)
+  (13, (SELECT id FROM roles WHERE name = 'Backend Developer'), 2, ARRAY['Go', 'Rust', 'Distributed Systems']),
+  (13, (SELECT id FROM roles WHERE name = 'DevOps Engineer'), 1, ARRAY['Kubernetes', 'Terraform', 'Cloud Infrastructure']),
+  (13, (SELECT id FROM roles WHERE name = 'Security Specialist'), 1, ARRAY['System Security', 'Encryption']),
+  (13, (SELECT id FROM roles WHERE name = 'Performance Engineer'), 1, ARRAY['System Optimization', 'Scalability Design']);-- Seed project learning outcomes for all 13 projects
 INSERT INTO project_learning_outcomes (project_id, outcome) VALUES
+  -- Project 1: E-commerce Platform
   (1, 'Understanding of full-stack web application architecture'),
   (1, 'Experience with server-side rendering and SEO optimization'),
   (1, 'Implementation of secure user authentication and authorization'),
   (1, 'Integration with third-party payment processing services'),
+  
+  -- Project 2: Real-time Chat Application
   (2, 'Real-time communication technologies'),
   (2, 'WebSocket implementation'),
   (2, 'State management in real-time applications'),
-  -- Task Management System
+  (2, 'Advanced front-end event handling'),
+  
+  -- Project 3: Task Management System
   (3, 'Understanding of project management workflows'),
   (3, 'Implementing task tracking and assignment systems'),
   (3, 'Building responsive and interactive web applications'),
-  -- Mobile Weather App
+  (3, 'Designing complex relational database schemas'),
+  
+  -- Project 4: Mobile Weather App
   (4, 'Mobile app development with React Native'),
   (4, 'Working with geolocation and weather APIs'),
   (4, 'Creating responsive mobile user interfaces'),
-  -- Blog Platform
+  (4, 'Implementing offline data caching strategies'),
+  
+  -- Project 5: Blog Platform
   (5, 'Content management system design'),
   (5, 'Server-side rendering with Next.js'),
   (5, 'Database design for content storage'),
-  -- API Gateway Service
+  (5, 'Implementing advanced search and filtering mechanisms'),
+  
+  -- Project 6: API Gateway Service
   (6, 'Microservices architecture'),
   (6, 'API security and authentication'),
   (6, 'Implementing rate limiting and access control'),
-  -- 2D Platformer Game
+  (6, 'Service discovery and load balancing techniques'),
+  
+  -- Project 7: 2D Platformer Game
   (7, 'Game development fundamentals'),
   (7, 'Sprite animation and game mechanics'),
   (7, 'Cross-platform game development'),
-  -- Personal Finance Tracker
+  (7, 'Implementing game physics and collision detection'),
+  
+  -- Project 8: Personal Finance Tracker
   (8, 'Financial data visualization'),
   (8, 'Building data-driven web applications'),
-  (8, 'Implementing complex data processing logic');
--- Seed teams
+  (8, 'Implementing complex data processing logic'),
+  (8, 'Integrating multiple financial data sources'),
+  
+  -- Project 9: Social Media Dashboard
+  (9, 'Complex data aggregation from multiple APIs'),
+  (9, 'Real-time data visualization techniques'),
+  (9, 'Advanced state management in large-scale applications'),
+  (9, 'Implementing user engagement metrics tracking'),
+  
+  -- Project 10: Machine Learning Image Classifier
+  (10, 'Machine learning model integration'),
+  (10, 'Deep learning neural network implementation'),
+  (10, 'Image preprocessing and data augmentation'),
+  (10, 'Building scalable machine learning pipelines'),
+  
+  -- Project 11: Cryptocurrency Trading Bot
+  (11, 'Real-time financial data processing'),
+  (11, 'Algorithmic trading strategy implementation'),
+  (11, 'Secure API integration with cryptocurrency exchanges'),
+  (11, 'Advanced market data analysis techniques'),
+  
+  -- Project 12: IoT Home Automation System
+  (12, 'Internet of Things (IoT) device communication'),
+  (12, 'Implementing MQTT protocol'),
+  (12, 'Real-time device state management'),
+  (12, 'Creating secure IoT device networks'),
+  
+  -- Project 13: Cloud-Native Distributed Caching System
+  (13, 'Distributed systems architecture'),
+  (13, 'Implementing efficient caching strategies'),
+  (13, 'Performance optimization and scalability'),
+  (13, 'Advanced network programming techniques');-- Seed teams
 INSERT INTO teams (name, project_id, title, description, long_description, progress, start_date, status) VALUES 
 ('E-commerce Team', (SELECT id FROM projects WHERE title = 'E-commerce Platform'), 'E-commerce Platform Team', 'Team building an e-commerce platform', 'Developing a full-stack e-commerce platform with shopping cart, payment processing, and user management', 25, '2025-01-15', 'active'),
 ('Blog Team', (SELECT id FROM projects WHERE title = 'Blog Platform'), 'Blog Platform Team', 'Team creating a modern blog platform', 'Building a scalable blog platform with markdown support, comments, and user authentication', 15, '2025-02-01', 'active'),
@@ -556,14 +1037,89 @@ INSERT INTO teams (name, project_id, title, description, long_description, progr
 ('Testing Team Beta', (SELECT id FROM projects WHERE title = 'Real-time Chat Application'), 'Real-time Chat Application Team', 'Team building a real-time chat application', 'Developing a real-time chat application with user presence indicators and message history', 15, '2025-02-01', 'finished'),
 ('Support Team Beta', (SELECT id FROM projects WHERE title = 'Task Management System'), 'Task Management System Team', 'Team building a task management system', 'Developing a task management system with task tracking, assignments, deadlines, and progress reporting', 15, '2025-02-01', 'active'),
 ('QA Team Alpha', (SELECT id FROM projects WHERE title = 'API Gateway Service'), 'API Gateway Service Team', 'Team developing an API gateway service', 'Creating a high-performance API gateway with rate limiting, authentication, and request routing', 15, '2025-02-01', 'finished');
--- Link artifacts to projects
+-- Link artifacts to projects randomly
 INSERT INTO artifacts_to_projects (artifact_id, project_id, added_at) VALUES 
-(1, (SELECT id FROM projects WHERE title = 'E-commerce Platform'), NOW()),
-(1, (SELECT id FROM projects WHERE title = 'Blog Platform'), NOW()),
-(1, (SELECT id FROM projects WHERE title = 'API Gateway Service'), NOW()),
-(1, (SELECT id FROM projects WHERE title = '2D Platformer Game'), NOW()),
-(1, (SELECT id FROM projects WHERE title = 'Personal Finance Tracker'), NOW());
--- Seed users
+-- Artifact 1 distributed to multiple projects
+(1, 1, NOW()),  -- E-commerce Platform
+(1, 5, NOW()),  -- Blog Platform
+(1, 6, NOW()),  -- API Gateway Service
+
+-- Artifact 2 distributed
+(2, 3, NOW()),  -- Task Management System
+(2, 2, NOW()),  -- Real-time Chat Application
+
+-- Artifact 3 distributed
+(3, 9, NOW()),  -- Social Media Dashboard
+(3, 2, NOW()),  -- Real-time Chat Application
+
+-- Artifact 4 distributed
+(4, 4, NOW()),  -- Mobile Weather App
+(4, 12, NOW()), -- IoT Home Automation System
+
+-- Artifact 5 distributed
+(5, 8, NOW()),  -- Personal Finance Tracker
+(5, 11, NOW()), -- Cryptocurrency Trading Bot
+
+-- Artifact 6 distributed
+(6, 1, NOW()),  -- E-commerce Platform
+(6, 5, NOW()),  -- Blog Platform
+
+-- Artifact 7 distributed
+(7, 5, NOW()),  -- Blog Platform
+(7, 1, NOW()),  -- E-commerce Platform
+(7, 13, NOW()), -- Cloud-Native Distributed Caching System
+
+-- Artifact 8 distributed
+(8, 1, NOW()),  -- E-commerce Platform
+(8, 6, NOW()),  -- API Gateway Service
+
+-- Artifact 9 distributed
+(9, 10, NOW()), -- Machine Learning Image Classifier
+(9, 13, NOW()), -- Cloud-Native Distributed Caching System
+
+-- Artifact 10 distributed
+(10, 12, NOW()), -- IoT Home Automation System
+(10, 4, NOW()),  -- Mobile Weather App
+
+-- Artifact 11 distributed
+(11, 11, NOW()), -- Cryptocurrency Trading Bot
+(11, 2, NOW()),  -- Real-time Chat Application
+
+-- Artifact 12 distributed
+(12, 2, NOW()),   -- Real-time Chat Application
+(12, 9, NOW()),   -- Social Media Dashboard
+
+-- Artifact 13 distributed
+(13, 5, NOW()),   -- Blog Platform
+(13, 8, NOW()),   -- Personal Finance Tracker
+
+-- Artifact 14 distributed
+(14, 8, NOW()),   -- Personal Finance Tracker
+(14, 11, NOW()),  -- Cryptocurrency Trading Bot
+
+-- Artifact 15 distributed
+(15, 7, NOW()),   -- 2D Platformer Game
+(15, 10, NOW()),  -- Machine Learning Image Classifier
+
+-- Artifact 16 distributed
+(16, 1, NOW()),   -- E-commerce Platform
+(16, 13, NOW()),  -- Cloud-Native Distributed Caching System
+
+-- Artifact 17 distributed
+(17, 6, NOW()),   -- API Gateway Service
+(17, 12, NOW()),  -- IoT Home Automation System
+
+-- Artifact 18 distributed
+(18, 9, NOW()),   -- Social Media Dashboard
+(18, 2, NOW()),   -- Real-time Chat Application
+
+-- Artifact 19 distributed
+(19, 1, NOW()),   -- E-commerce Platform
+(19, 11, NOW()),  -- Cryptocurrency Trading Bot
+
+-- Artifact 20 distributed
+(20, 9, NOW()),   -- Social Media Dashboard
+(20, 5, NOW());   -- Blog Platform-- Seed users
 INSERT INTO "users" ("id", "username", "email", "password", "created_at", "updated_at") VALUES
   (1, 'Abigail Adams', 'A.Abigail@example.com', 'password123', '2023-01-01 00:00:00', '2023-01-01 00:00:00'),
   (2, 'Bernard Brown', 'B.Bernard@example.com', 'password123', '2023-01-01 00:00:00', '2023-01-01 00:00:00'),

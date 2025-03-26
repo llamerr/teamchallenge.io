@@ -1,5 +1,8 @@
+import { db } from '@/libs/DB';
+import { projectsTable } from '@/models/projects';
 import { Badge, Box, Button, Card, CardSection, Flex, Grid, GridCol, Group, Progress, Stack, Text, Title } from '@mantine/core';
 import { IconArrowLeft, IconBookmark, IconBrandGithub, IconCalendar, IconClock, IconCode, IconDatabase, IconExternalLink, IconFile, IconFileText, IconGitBranch, IconLayout, IconShoppingCart, IconStar, IconUsers } from '@tabler/icons-react';
+import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 
 // Mock data for a single project
@@ -169,7 +172,51 @@ function getComplexityColor(complexity: string) {
   }
 }
 
-export default function ProjectDetailsPage({ params }: { params: { id: string } }) {
+// Fetch projects from database
+async function fetchProject(id: string) {
+  try {
+    const project = await db.query.projectsTable.findFirst({
+      with: {
+        technologies: {
+          with: {
+            technology: true,
+          },
+        },
+        category: true,
+        projectLearningOutcomes: true,
+        roles: {
+          with: {
+            role: true,
+          },
+        },
+        artifacts: {
+          with: {
+            artifact: {
+              with: {
+                category: true,
+              },
+            },
+          },
+        },
+      },
+      where: eq(projectsTable.id, Number.parseInt(id)),
+    });
+    return project;
+  } catch (error) {
+    console.error('Error fetching project:', error);
+    return undefined;
+  }
+}
+
+export default async function ProjectDetailsPage({ params }: { params: { id: string } }) {
+  const id = await params.id;
+  const project = await fetchProject(id);
+
+  console.log('project', project);
+  if (!project) {
+    return <div>Project not found</div>;
+  }
+
   return (
     <Box p="md">
       <Button
@@ -189,29 +236,33 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               <Flex align="center" justify="space-between" mb="md">
                 <Group>
                   <Box bg="primary.1" p={5} style={{ borderRadius: 6 }}>
-                    {getCategoryIcon(project.category)}
+                    {getCategoryIcon(project.category?.icon || '')}
                   </Box>
                   <Title order={2}>{project.title}</Title>
                 </Group>
                 <Group>
-                  <Button
-                    variant="outline"
-                    leftSection={<IconBrandGithub size={16} />}
-                    component="a"
-                    href={project.repositoryUrl}
-                    target="_blank"
-                  >
-                    Repository
-                  </Button>
-                  <Button
-                    variant="filled"
-                    leftSection={<IconExternalLink size={16} />}
-                    component="a"
-                    href={project.demoUrl}
-                    target="_blank"
-                  >
-                    Live Demo
-                  </Button>
+                  {project.repositoryUrl && (
+                    <Button
+                      variant="outline"
+                      leftSection={<IconBrandGithub size={16} />}
+                      component="a"
+                      href={project.repositoryUrl}
+                      target="_blank"
+                    >
+                      Repository
+                    </Button>
+                  )}
+                  {project.demoUrl && (
+                    <Button
+                      variant="filled"
+                      leftSection={<IconExternalLink size={16} />}
+                      component="a"
+                      href={project.demoUrl}
+                      target="_blank"
+                    >
+                      Live Demo
+                    </Button>
+                  )}
                 </Group>
               </Flex>
               <Text c="dimmed" size="sm" mb="md">
@@ -227,7 +278,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                       <IconCalendar size={16} stroke={1.5} />
                       <Text size="sm">
                         Created:
-                        {project.createdAt}
+                        {project.createdAt?.toLocaleDateString()}
                       </Text>
                     </Group>
                     <Group>
@@ -262,7 +313,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
 
             <CardSection p="md" pt={0}>
               <Title order={4} mb="md">Project Progress</Title>
-              <Progress value={project.progress} size="lg" />
+              <Progress value={project.progress || 0} size="lg" />
             </CardSection>
           </Card>
 
@@ -277,10 +328,10 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
             <CardSection p="md">
               <Title order={4} mb="md">Learning Outcomes</Title>
               <Stack gap="xs">
-                {project.learningOutcomes.map((outcome, index) => (
+                {project.projectLearningOutcomes.map((outcome, index) => (
                   <Group key={index}>
                     <IconBookmark size={16} stroke={1.5} />
-                    <Text>{outcome}</Text>
+                    <Text>{outcome.outcome}</Text>
                   </Group>
                 ))}
               </Stack>
@@ -295,14 +346,14 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               <Stack gap="xs">
                 <Group justify="space-between">
                   <Text>Category</Text>
-                  <Badge color={getComplexityColor(project.complexity)}>
-                    {project.categoryLabel}
+                  <Badge color={getComplexityColor(project.complexity || '')}>
+                    {project.category?.name}
                   </Badge>
                 </Group>
                 <Group justify="space-between">
                   <Text>Complexity</Text>
-                  <Badge color={getComplexityColor(project.complexity)}>
-                    {project.complexity.charAt(0).toUpperCase() + project.complexity.slice(1)}
+                  <Badge color={getComplexityColor(project.complexity || '')}>
+                    {project.complexity || ''}
                   </Badge>
                 </Group>
                 <Group justify="space-between">
@@ -324,13 +375,13 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
             <CardSection p="md">
               <Title order={4} mb="md">Team Composition</Title>
               <Stack gap="xs">
-                {project.teamComposition.map((role, index) => (
+                {project.roles.map((role, index) => (
                   <Group key={index} justify="space-between">
-                    <Text>{role.role}</Text>
+                    <Text>{role.role?.name || ''}</Text>
                     <Badge color="blue">
-                      {role.count}
+                      {(role.role?.defaultCount || 0)}
                       {' '}
-                      {role.count > 1 ? 'members' : 'member'}
+                      {(role.role?.defaultCount || 0) > 1 ? 'members' : 'member'}
                     </Badge>
                   </Group>
                 ))}
@@ -348,7 +399,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                     color="gray"
                     variant="outline"
                   >
-                    {tech.name}
+                    {tech.technology?.name || ''}
                   </Badge>
                 ))}
               </Group>
@@ -360,12 +411,12 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               <Title order={4} mb="md">Project Artifacts</Title>
               <Stack gap="xs">
                 {project.artifacts.map(artifact => (
-                  <Group key={artifact.id} align="center">
-                    {getArtifactIcon(artifact.category)}
+                  <Group key={artifact.artifactId} align="center">
+                    {getArtifactIcon(artifact.artifact?.category?.icon || '')}
                     <Stack gap={0}>
-                      <Text size="sm" fw={500}>{artifact.title}</Text>
+                      <Text size="sm" fw={500}>{artifact.artifact?.title}</Text>
                       <Text size="xs" c="dimmed">
-                        {getArtifactCategoryLabel(artifact.category)}
+                        {getArtifactCategoryLabel(artifact.artifact?.category?.name || '')}
                       </Text>
                     </Stack>
                   </Group>
@@ -378,7 +429,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
             <CardSection p="md">
               <Title order={4} mb="md">Similar Projects</Title>
               <Stack gap="xs">
-                {project.similarProjects.map(similar => (
+                {/* {project.similarProjects.map(similar => (
                   <Group key={similar.id} justify="space-between" align="center">
                     <Group>
                       {getCategoryIcon(similar.category, { size: 20 })}
@@ -388,7 +439,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                       {similar.complexity.charAt(0).toUpperCase() + similar.complexity.slice(1)}
                     </Badge>
                   </Group>
-                ))}
+                ))} */}
               </Stack>
             </CardSection>
           </Card>
