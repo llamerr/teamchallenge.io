@@ -9,4 +9,13 @@ INSERT INTO roles (name, description, typical_skills, default_count) VALUES
   ('Content Strategist', 'Develops content plans and manages content creation', ARRAY['Content Writing', 'SEO', 'Marketing'], 1),
   ('Security Specialist', 'Ensures application security and compliance', ARRAY['Authentication', 'Authorization', 'Data Encryption'], 1),
   ('Artist', 'Creates visual assets for applications and games', ARRAY['Graphic Design', 'Illustration', 'Animation'], 1),
-  ('Sound Designer', 'Creates audio assets for applications and games', ARRAY['Audio Editing', 'Sound Effects', 'Music Composition'], 1);
+  ('Sound Designer', 'Creates audio assets for applications and games', ARRAY['Audio Editing', 'Sound Effects', 'Music Composition'], 1),
+  ('Data Analyst', 'Analyzes data to provide insights and recommendations', ARRAY['Data Analysis', 'Statistics', 'Data Visualization'], 1),
+  ('Project Manager', 'Oversees project planning, execution, and delivery', ARRAY['Project Planning', 'Resource Management', 'Risk Analysis'], 1),
+  ('Business Analyst', 'Analyzes business processes and requirements to inform technical decisions', ARRAY['Business Analysis', 'Requirements Gathering', 'Process Mapping'], 1),
+  ('Technical Writer', 'Writes technical documentation and guides for software and hardware products', ARRAY['Technical Writing', 'Documentation', 'User Guides'], 1),
+  ('QA Engineer', 'Ensures software quality through testing and quality assurance', ARRAY['Testing', 'Quality Assurance', 'Bug Tracking'], 1),
+  ('System Architect', 'Designs and implements system architecture and infrastructure', ARRAY['System Architecture', 'Infrastructure Design', 'Cloud Services'], 1),
+  ('Cloud Engineer', 'Manages cloud infrastructure and services', ARRAY['Cloud Services', 'Infrastructure Management', 'Cloud Security'], 1),
+  ('Data Engineer', 'Develops and manages data pipelines and data warehouses', ARRAY['Data Engineering', 'Data Processing', 'Data Storage'], 1);
+  
