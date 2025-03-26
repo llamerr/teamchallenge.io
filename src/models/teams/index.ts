@@ -3,7 +3,7 @@ import { date, integer, pgTable, serial, text, timestamp, varchar } from 'drizzl
 import { artifactsTable } from '../artifacts';
 import { languagesTable } from '../languages';
 import { projectsTable } from '../projects';
-import { usersTable } from '../users';
+import { usersToTeamsTable } from '../Schema';
 
 // ------------------- Tables -------------------
 export const teamsTable = pgTable('teams', {
@@ -40,7 +40,7 @@ export const teamsRelations = relations(teamsTable, ({ one, many }) => ({
   // many-to-many teams.id >-< artifacts.id
   artifacts: many(artifactsTable),
   // many-to-many teams.id >-< users.id
-  users: many(usersTable),
+  users: many(usersToTeamsTable),
   // many-to-many teams.id >-< languages.id
   languages: many(languagesTable),
 }));

@@ -1,22 +1,8 @@
-import {
-  Avatar,
-  AvatarGroup,
-  Badge,
-  Box,
-  Button,
-  Card,
-  CardSection,
-  Flex,
-  Grid,
-  GridCol,
-  Group,
-  Progress,
-  Select,
-  Text,
-  TextInput,
-  Title,
-} from '@mantine/core';
+import { db } from '@/libs/DB';
+import { teamsTable } from '@/models/teams';
+import { Avatar, AvatarGroup, Badge, Box, Button, Card, CardSection, Flex, Grid, GridCol, Group, Progress, Select, Text, TextInput, Title } from '@mantine/core';
 import { IconArrowRight, IconCalendar, IconFilter, IconSearch, IconUsers } from '@tabler/icons-react';
+import { desc } from 'drizzle-orm';
 import Link from 'next/link';
 
 // Mock data for teams
@@ -92,7 +78,40 @@ const teams = [
   },
 ];
 
-export default function TeamsPage() {
+// Fetch teams from database
+async function fetchTeams({ limit = 10 }: { limit?: number }) {
+  try {
+    const teams = await db.query.teamsTable.findMany({
+      with: {
+        users: {
+          with: {
+            user: {
+              with: {
+                userProfile: true,
+              },
+            },
+          },
+        },
+        project: {
+          with: {
+            category: true,
+          },
+        },
+      },
+      orderBy: desc(teamsTable.startDate),
+      limit,
+    });
+    return teams;
+  } catch (error) {
+    console.error('Error fetching teams:', error);
+    return [];
+  }
+}
+
+export default async function TeamsPage() {
+  const teams = await fetchTeams({ limit: 10 });
+  console.log(teams);
+
   return (
     <Box p="md">
       <Flex justify="space-between" align="center" mb="xl">
@@ -150,16 +169,10 @@ export default function TeamsPage() {
               <CardSection p="md">
                 <Flex justify="space-between" mb="xs">
                   <Badge variant="light" color="blue">
-                    {team.project.category === 'ssr-app'
-                      ? 'SSR Application'
-                      : team.project.category === 'spa'
-                        ? 'Single Page App'
-                        : team.project.category === 'mobile'
-                          ? 'Mobile App'
-                          : team.project.category}
+                    {team.project?.category?.name}
                   </Badge>
                   <Badge color={team.status === 'active' ? 'green' : 'gray'}>
-                    {team.status.charAt(0).toUpperCase() + team.status.slice(1)}
+                    {team.status && (team.status?.charAt(0).toUpperCase() + team.status?.slice(1))}
                   </Badge>
                 </Flex>
 
@@ -167,12 +180,12 @@ export default function TeamsPage() {
                   <Title order={3}>{team.name}</Title>
                   <Text
                     component={Link}
-                    href={`/projects/${team.project.id}`}
+                    href={`/projects/${team.projectId}`}
                     c="dimmed"
                     size="sm"
                     style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
-                    {team.project.name}
+                    {team.project?.title}
                     <IconArrowRight size={16} />
                   </Text>
                 </Flex>
@@ -184,11 +197,11 @@ export default function TeamsPage() {
                     <Flex justify="space-between" mb="xs" size="sm">
                       <Text c="dimmed">Project Progress</Text>
                       <Text>
-                        {team.project.progress}
+                        {team.project?.progress}
                         %
                       </Text>
                     </Flex>
-                    <Progress value={team.project.progress} />
+                    <Progress value={team.project?.progress || 0} />
                   </Box>
 
                   <Flex align="center" gap="xs">
@@ -203,17 +216,17 @@ export default function TeamsPage() {
                     <Flex align="center" gap="xs">
                       <IconUsers size={16} color="gray" />
                       <Text size="sm">
-                        {team.members.length}
+                        {team.users?.length}
                         {' '}
                         team members
                       </Text>
                     </Flex>
                     <AvatarGroup>
-                      {team.members.slice(0, 4).map(member => (
+                      {team.users.map(member => (
                         <Avatar
-                          key={member.id}
-                          src={member.avatar}
-                          alt={member.name}
+                          key={member.userId}
+                          src={member.user?.userProfile?.avatar_url}
+                          alt={member.user?.username}
                           radius="xl"
                         />
                       ))}

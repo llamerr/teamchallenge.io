@@ -1,225 +1,121 @@
-import {
-  Avatar,
-  Badge,
-  Box,
-  Button,
-  Card,
-  CardSection,
-  Flex,
-  Grid,
-  GridCol,
-  Group,
-  Paper,
-  Progress,
-  Stack,
-  Tabs,
-  TabsList,
-  TabsPanel,
-  TabsTab,
-  Text,
-  Title,
-} from '@mantine/core';
-import {
-  IconArrowLeft,
-  IconBrandGithub,
-  IconBrandLinkedin,
-  IconCalendar,
-  IconCode,
-  IconGitBranch,
-  IconGitCommit,
-  IconGitPullRequest,
-  IconMail,
-  IconMessage,
-  IconSettings,
-  IconUsers,
-} from '@tabler/icons-react';
+import { db } from '@/libs/DB';
+import { teamsTable } from '@/models/teams';
+import { Avatar, Badge, Box, Button, Card, CardSection, Flex, Grid, GridCol, Group, Paper, Progress, Stack, Tabs, TabsList, TabsPanel, TabsTab, Text, Title } from '@mantine/core';
+import { IconArrowLeft, IconBrandGithub, IconBrandLinkedin, IconCalendar, IconCode, IconGitBranch, IconGitCommit, IconGitPullRequest, IconMail, IconMessage, IconSettings, IconUsers } from '@tabler/icons-react';
+import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 
 // Mock data for a single team
-const team = {
-  id: '1',
-  name: 'Team Alpha',
-  project: {
-    id: '1',
-    name: 'E-commerce Platform',
-    category: 'ssr-app',
-    description:
-      'A full-featured e-commerce platform with product listings, shopping cart, user accounts, and payment processing.',
-    progress: 75,
-    startDate: 'October 1, 2023',
-    estimatedEndDate: 'March 1, 2024',
-    status: 'active',
-    modifiedArtifacts: [
-      {
-        id: '1',
-        name: 'Database Schema',
-        type: 'database',
-        originalVersion: '1.0',
-        modifiedVersion: '1.1',
-        status: 'modified',
-        modifiedDate: 'November 15, 2023',
-      },
-      {
-        id: '2',
-        name: 'UI Design System',
-        type: 'ui-design',
-        originalVersion: '2.0',
-        modifiedVersion: '2.1',
-        status: 'modified',
-        modifiedDate: 'December 1, 2023',
-      },
-    ],
-  },
-  members: [
+const githubActivity = {
+  repositories: [
     {
-      id: '1',
-      name: 'Sarah Wilson',
-      role: 'Project Manager',
-      avatar: '/placeholder.svg',
-      email: 'sarah.wilson@example.com',
-      phone: '+1 (555) 123-4567',
-      github: 'sarahw',
-      linkedin: 'sarahwilson',
-      joinDate: 'October 1, 2023',
-      status: 'active',
+      name: 'e-commerce-frontend',
+      type: 'frontend',
+      url: 'https://github.com/org/e-commerce-frontend',
+      branch: 'main',
+      recentCommits: [
+        {
+          id: 'abc123',
+          message: 'Implement new product catalog filtering',
+          author: 'Mike Johnson',
+          date: '2 hours ago',
+          sha: 'abc123def456',
+          branch: 'feature/product-filters',
+        },
+        {
+          id: 'def456',
+          message: 'Fix cart item count update',
+          author: 'Mike Johnson',
+          date: '5 hours ago',
+          sha: 'def456ghi789',
+          branch: 'fix/cart-count',
+        },
+        {
+          id: 'ghi789',
+          message: 'Update product card component styling',
+          author: 'Emily Chen',
+          date: '1 day ago',
+          sha: 'ghi789jkl012',
+          branch: 'feature/ui-updates',
+        },
+      ],
+      pullRequests: [
+        {
+          id: 'pr1',
+          title: 'Feature: Product Filtering',
+          author: 'Mike Johnson',
+          status: 'open',
+          createdAt: '2 hours ago',
+          reviewers: ['Emily Chen', 'Sarah Wilson'],
+        },
+        {
+          id: 'pr2',
+          title: 'Fix: Cart Count Updates',
+          author: 'Mike Johnson',
+          status: 'merged',
+          createdAt: '3 hours ago',
+          reviewers: ['David Lee'],
+        },
+      ],
     },
     {
-      id: '2',
-      name: 'Mike Johnson',
-      role: 'Frontend Developer',
-      avatar: '/placeholder.svg',
-      email: 'mike.johnson@example.com',
-      phone: '+1 (555) 234-5678',
-      github: 'mikej',
-      linkedin: 'mikejohnson',
-      joinDate: 'October 1, 2023',
-      status: 'active',
-    },
-    {
-      id: '3',
-      name: 'Emily Chen',
-      role: 'UI/UX Designer',
-      avatar: '/placeholder.svg',
-      email: 'emily.chen@example.com',
-      phone: '+1 (555) 345-6789',
-      github: 'emilyc',
-      linkedin: 'emilychen',
-      joinDate: 'October 15, 2023',
-      status: 'active',
-    },
-    {
-      id: '4',
-      name: 'David Lee',
-      role: 'Backend Developer',
-      avatar: '/placeholder.svg',
-      email: 'david.lee@example.com',
-      phone: '+1 (555) 456-7890',
-      github: 'davidl',
-      linkedin: 'davidlee',
-      joinDate: 'October 1, 2023',
-      status: 'active',
+      name: 'e-commerce-backend',
+      type: 'backend',
+      url: 'https://github.com/org/e-commerce-backend',
+      branch: 'main',
+      recentCommits: [
+        {
+          id: 'jkl012',
+          message: 'Add caching layer for product queries',
+          author: 'David Lee',
+          date: '6 hours ago',
+          sha: 'jkl012mno345',
+          branch: 'feature/performance-optimization',
+        },
+      ],
+      pullRequests: [],
     },
   ],
-  recentActivities: [
-    {
-      id: '1',
-      type: 'artifact_modified',
-      user: 'Emily Chen',
-      action: 'Modified UI Design System',
-      date: 'December 1, 2023',
-      details: 'Updated component library and color scheme',
-    },
-    {
-      id: '2',
-      type: 'member_added',
-      user: 'Sarah Wilson',
-      action: 'Added new team member',
-      date: 'November 20, 2023',
-      details: 'Emily Chen joined as UI/UX Designer',
-    },
-    {
-      id: '3',
-      type: 'artifact_modified',
-      user: 'David Lee',
-      action: 'Modified Database Schema',
-      date: 'November 15, 2023',
-      details: 'Added new tables for user preferences',
-    },
-  ],
-  githubActivity: {
-    repositories: [
-      {
-        name: 'e-commerce-frontend',
-        type: 'frontend',
-        url: 'https://github.com/org/e-commerce-frontend',
-        branch: 'main',
-        recentCommits: [
-          {
-            id: 'abc123',
-            message: 'Implement new product catalog filtering',
-            author: 'Mike Johnson',
-            date: '2 hours ago',
-            sha: 'abc123def456',
-            branch: 'feature/product-filters',
-          },
-          {
-            id: 'def456',
-            message: 'Fix cart item count update',
-            author: 'Mike Johnson',
-            date: '5 hours ago',
-            sha: 'def456ghi789',
-            branch: 'fix/cart-count',
-          },
-          {
-            id: 'ghi789',
-            message: 'Update product card component styling',
-            author: 'Emily Chen',
-            date: '1 day ago',
-            sha: 'ghi789jkl012',
-            branch: 'feature/ui-updates',
-          },
-        ],
-        pullRequests: [
-          {
-            id: 'pr1',
-            title: 'Feature: Product Filtering',
-            author: 'Mike Johnson',
-            status: 'open',
-            createdAt: '2 hours ago',
-            reviewers: ['Emily Chen', 'Sarah Wilson'],
-          },
-          {
-            id: 'pr2',
-            title: 'Fix: Cart Count Updates',
-            author: 'Mike Johnson',
-            status: 'merged',
-            createdAt: '3 hours ago',
-            reviewers: ['David Lee'],
-          },
-        ],
-      },
-      {
-        name: 'e-commerce-backend',
-        type: 'backend',
-        url: 'https://github.com/org/e-commerce-backend',
-        branch: 'main',
-        recentCommits: [
-          {
-            id: 'jkl012',
-            message: 'Add caching layer for product queries',
-            author: 'David Lee',
-            date: '6 hours ago',
-            sha: 'jkl012mno345',
-            branch: 'feature/performance-optimization',
-          },
-        ],
-        pullRequests: [],
-      },
-    ],
-  },
 };
 
-export default function TeamDetailPage() {
+// Fetch teams from database
+async function fetchTeam(id: string) {
+  try {
+    const team = await db.query.teamsTable.findFirst({
+      with: {
+        users: {
+          with: {
+            user: {
+              with: {
+                userProfile: true,
+              },
+            },
+          },
+        },
+        recentActivities: true,
+        project: {
+          with: {
+            category: true,
+          },
+        },
+      },
+      where: eq(teamsTable.id, Number.parseInt(id)),
+    });
+    return team;
+  } catch (error) {
+    console.error('Error fetching teams:', error);
+    return undefined;
+  }
+}
+
+export default async function TeamDetailPage({ params }: { params: { id: string } }) {
+  const team = await fetchTeam(params.id);
+  console.log(team);
+
+  if (!team) {
+    return <Text>Team not found</Text>;
+  }
+
   return (
     <Box p="md">
       <Flex align="center" mb="xl" gap="md">
@@ -235,8 +131,8 @@ export default function TeamDetailPage() {
           <Title order={1}>
             {team.name}
           </Title>
-          <Badge color={team.project.status === 'active' ? 'green' : 'gray'}>
-            {team.project.status.charAt(0).toUpperCase() + team.project.status.slice(1)}
+          <Badge color={team.status === 'active' ? 'green' : 'gray'}>
+            {team.status && (team.status.charAt(0).toUpperCase() + team.status.slice(1))}
           </Badge>
         </Group>
         <Group>
@@ -264,34 +160,34 @@ export default function TeamDetailPage() {
           <Card withBorder radius="md" mb="md">
             <CardSection p="md">
               <Title order={2} mb="md">
-                {team.project.name}
+                {team.name}
               </Title>
               <Text c="dimmed" mb="md">
-                {team.project.description}
+                {team.description}
               </Text>
 
               <Flex justify="space-between" align="center" mb="xs">
                 <Text>Project Progress</Text>
                 <Text>
-                  {team.project.progress}
+                  {team.progress}
                   %
                 </Text>
               </Flex>
-              <Progress value={team.project.progress} />
+              <Progress value={team.progress || 0} />
 
               <Flex mt="md" justify="space-between">
                 <Group>
                   <IconCalendar size={16} />
                   <Text>
                     Started:
-                    {team.project.startDate}
+                    {team.startDate}
                   </Text>
                 </Group>
                 <Group>
                   <IconCalendar size={16} />
                   <Text>
                     Est. End:
-                    {team.project.estimatedEndDate}
+                    {/* {team.project.estimatedEndDate} */}
                   </Text>
                 </Group>
               </Flex>
@@ -322,7 +218,7 @@ export default function TeamDetailPage() {
                         <Text>{activity.action}</Text>
                       </Group>
                       <Text c="dimmed" size="sm">
-                        {activity.date}
+                        {activity.date?.toLocaleDateString()}
                       </Text>
                     </Flex>
                     <Text mt="xs" c="dimmed">
@@ -334,7 +230,7 @@ export default function TeamDetailPage() {
             </TabsPanel>
 
             <TabsPanel value="github" pt="xs">
-              {team.githubActivity.repositories.map(repo => (
+              {githubActivity.repositories.map(repo => (
                 <Card key={repo.name} withBorder mb="md">
                   <CardSection p="md">
                     <Flex justify="space-between" align="center" mb="md">
@@ -435,7 +331,7 @@ export default function TeamDetailPage() {
                 <Group>
                   <IconUsers size={16} />
                   <Text>
-                    {team.members.length}
+                    {team.users.length}
                     {' '}
                     members
                   </Text>
@@ -443,24 +339,24 @@ export default function TeamDetailPage() {
               </Flex>
 
               <Stack>
-                {team.members.map(member => (
-                  <Paper key={member.id} withBorder p="md">
+                {team.users.map(member => (
+                  <Paper key={member.userId} withBorder p="md">
                     <Flex align="center" gap="md">
                       <Avatar
-                        src={member.avatar}
-                        alt={member.name}
+                        src={member.user?.userProfile?.avatar_url}
+                        alt={member.user?.username}
                         size="lg"
                         radius="xl"
                       />
                       <Stack gap="xs">
-                        <Text fw={500}>{member.name}</Text>
+                        <Text fw={500}>{member.user?.username}</Text>
                         <Text c="dimmed" size="sm">
                           {member.role}
                         </Text>
                         <Group>
                           <Button
                             component="a"
-                            href={`mailto:${member.email}`}
+                            href={`mailto:${member.user?.email}`}
                             variant="subtle"
                             size="xs"
                             leftSection={<IconMail size={16} />}
@@ -469,7 +365,7 @@ export default function TeamDetailPage() {
                           </Button>
                           <Button
                             component="a"
-                            href={`https://github.com/${member.github}`}
+                            href={`https://github.com/${member.user?.userProfile?.github_username}`}
                             target="_blank"
                             variant="subtle"
                             size="xs"
@@ -479,7 +375,7 @@ export default function TeamDetailPage() {
                           </Button>
                           <Button
                             component="a"
-                            href={`https://linkedin.com/in/${member.linkedin}`}
+                            href={`https://linkedin.com/in/${member.user?.userProfile?.linkedin_username}`}
                             target="_blank"
                             variant="subtle"
                             size="xs"
