@@ -1,4 +1,3 @@
-import { DemoBanner } from '@/components/DemoBanner';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { BaseTemplate } from '@/templates/BaseTemplate';
@@ -18,7 +17,6 @@ export default async function Layout(props: {
 
   return (
     <>
-      <DemoBanner />
       <BaseTemplate
         leftNav={(
           <>
