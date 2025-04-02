@@ -3,12 +3,18 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import createMiddleware from 'next-intl/middleware';
 import { NextResponse } from 'next/server';
 import { routing } from './libs/i18nNavigation';
+import { checkRole } from './libs/permissions';
 
 const intlMiddleware = createMiddleware(routing);
 
-const isProtectedRoute = createRouteMatcher([
+const isAuthorizedRoute = createRouteMatcher([
   '/dashboard(.*)',
   '/:locale/dashboard(.*)',
+]);
+
+const isProtectedRoute = createRouteMatcher([
+  '/admin(.*)',
+  '/:locale/admin(.*)',
 ]);
 
 const isAuthPage = createRouteMatcher([
@@ -24,10 +30,10 @@ export default function middleware(
 ) {
   // Run Clerk middleware only when it's necessary
   if (
-    isAuthPage(request) || isProtectedRoute(request)
+    isAuthPage(request) || isAuthorizedRoute(request) || isProtectedRoute(request)
   ) {
     return clerkMiddleware(async (auth, req) => {
-      if (isProtectedRoute(req)) {
+      if (isAuthorizedRoute(req)) {
         const locale
           = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
 
@@ -37,6 +43,13 @@ export default function middleware(
           // `unauthenticatedUrl` is needed to avoid error: "Unable to find `next-intl` locale because the middleware didn't run on this request"
           unauthenticatedUrl: signInUrl.toString(),
         });
+      }
+      if (isProtectedRoute(req)) {
+        const { sessionClaims } = await auth();
+
+        if (!(await checkRole('admin', sessionClaims))) {
+          return NextResponse.redirect(new URL('/dashboard', req.url));
+        }
       }
 
       return intlMiddleware(req);
