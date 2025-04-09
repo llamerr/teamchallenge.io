@@ -1,0 +1,5 @@
+.badge:hover {
+  cursor: pointer;
+  background-color: var(--badge-color);
+  color: var(--mantine-color-white);
+}
