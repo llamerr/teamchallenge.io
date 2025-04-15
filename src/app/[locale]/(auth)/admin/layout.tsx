@@ -1,31 +1,98 @@
-import type React from "react"
-import Link from "next/link"
+import type React from 'react';
+import { LocaleSwitcher } from '@/components/LocaleSwitcher';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { UserMenu } from '@/components/UserMenu';
+import { BaseTemplate } from '@/templates/BaseTemplate';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import Link from 'next/link';
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
+export default async function AdminLayout(props: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await props.params;
+  setRequestLocale(locale);
+  const t = await getTranslations({
+    locale,
+    namespace: 'RootLayout',
+  });
   return (
-    <div className="min-h-screen">
-      <header className="border-b">
-        <div className="container mx-auto py-4">
-          <div className="font-bold text-xl mb-4">DevArtifacts Admin</div>
-          <nav className="flex gap-6 text-sm">
-            <Link href="/admin" className="hover:text-primary transition-colors">
-              Dashboard
+    <BaseTemplate
+      leftNav={(
+        <>
+          <li>
+            <Link
+              href="/artifacts/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('artifacts_link')}
             </Link>
-            <Link href="/admin/tags" className="hover:text-primary transition-colors">
-              Tags Management
+          </li>
+          <li>
+            <Link
+              href="/create/artifact/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('create_artifacts_link')}
             </Link>
-            <Link href="/artifacts" className="hover:text-primary transition-colors">
-              Back to Artifacts
+          </li>
+          <li>
+            <Link
+              href="/projects/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('projects_link')}
             </Link>
-          </nav>
-        </div>
-      </header>
-      <main>{children}</main>
-    </div>
-  )
+          </li>
+          <li>
+            <Link
+              href="/teams/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('teams_link')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/users/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('users_link')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/admin/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('admin_link')}
+            </Link>
+          </li>
+          <li>
+            <a
+              className="border-none text-gray-700 hover:text-gray-900"
+              href="https://github.com/ixartz/Next-js-Boilerplate"
+            >
+              GitHub
+            </a>
+          </li>
+        </>
+      )}
+      rightNav={(
+        <>
+          <li>
+            <ThemeSwitcher />
+          </li>
+          <li>
+            <UserMenu />
+          </li>
+          <li>
+            <LocaleSwitcher />
+          </li>
+        </>
+      )}
+    >
+      <div className="py-5 text-xl [&_p]:my-6">{props.children}</div>
+    </BaseTemplate>
+  );
 }
-

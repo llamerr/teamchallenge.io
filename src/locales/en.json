@@ -1,6 +1,5 @@
 {
   "RootLayout": {
-    "home_link": "Home",
     "about_link": "About",
     "counter_link": "Counter",
     "portfolio_link": "Portfolio",
@@ -15,7 +14,8 @@
   },
   "BaseTemplate": {
     "description": "Starter code for your Nextjs Boilerplate with Tailwind CSS",
-    "made_with": "Made with <author></author>."
+    "made_with": "Made with <author></author>.",
+    "home_link": "Home"
   },
   "Index": {
     "meta_title": "Next.js Boilerplate Presentation",
@@ -76,7 +76,9 @@
   "DashboardLayout": {
     "dashboard_link": "Dashboard",
     "user_profile_link": "Manage your account",
-    "sign_out": "Sign out"
+    "sign_out": "Sign out",
+    "sign_in": "Sign in",
+    "sign_up": "Sign up for free"
   },
   "Artifacts": {
     "meta_title": "Artifacts Library",

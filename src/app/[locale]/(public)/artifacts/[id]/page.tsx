@@ -1,6 +1,7 @@
+import { Badge } from '@/components/Badge';
 import { db } from '@/libs/DB';
 import { artifactsTable } from '@/models/Schema';
-import { Badge, Button, Card, CardSection, Container, Divider, Flex, Grid, GridCol, Group, Stack, Text, Title } from '@mantine/core';
+import { Button, Card, CardSection, Container, Divider, Flex, Grid, GridCol, Group, Stack, Text, Title } from '@mantine/core';
 import { IconArrowLeft, IconDatabase, IconDownload, IconEye, IconFile, IconFileText, IconLayout } from '@tabler/icons-react';
 import { eq } from 'drizzle-orm';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -188,6 +189,7 @@ export default async function ArtifactDetailsPage(props: ArtifactDetailsPageProp
                       key={tag?.name}
                       variant="outline"
                       size="sm"
+                      href={`/artifacts/${tag?.name}`}
                     >
                       {tag?.name}
                     </Badge>
@@ -244,7 +246,11 @@ export default async function ArtifactDetailsPage(props: ArtifactDetailsPageProp
                           <CardSection p="md">
                             <Group mb="xs">
                               {getCategoryIcon(similar.category_slug, 20)}
-                              <Badge variant="light" size="xs">
+                              <Badge
+                                variant="outline"
+                                size="xs"
+                                color="secondary"
+                              >
                                 {getCategoryLabel(similar.category_slug)}
                               </Badge>
                             </Group>

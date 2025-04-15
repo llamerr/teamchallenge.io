@@ -39,6 +39,7 @@ export default function middleware(
 
         const signInUrl = new URL(`${locale}/sign-in`, req.url);
 
+        console.log('is auth, redirecting to dashboard');
         await auth.protect({
           // `unauthenticatedUrl` is needed to avoid error: "Unable to find `next-intl` locale because the middleware didn't run on this request"
           unauthenticatedUrl: signInUrl.toString(),
@@ -48,6 +49,7 @@ export default function middleware(
         const { sessionClaims } = await auth();
 
         if (!(await checkRole('admin', sessionClaims))) {
+          console.log('not admin, redirecting to dashboard');
           return NextResponse.redirect(new URL('/dashboard', req.url));
         }
       }

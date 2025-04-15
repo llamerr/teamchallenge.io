@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import arcjet, { detectBot, request } from '@/libs/Arcjet';
 import { Env } from '@/libs/Env';
 import { routing } from '@/libs/i18nNavigation';
+import { enUS, frFR } from '@clerk/localizations';
+import { ClerkProvider } from '@clerk/nextjs';
 import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
@@ -57,12 +59,27 @@ export default async function RootLayout(props: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await props.params;
+  setRequestLocale(locale);
+  let clerkLocale = enUS;
+  let signInUrl = '/sign-in';
+  let signUpUrl = '/sign-up';
+  let dashboardUrl = '/dashboard';
+  let afterSignOutUrl = '/';
+
+  if (locale === 'fr') {
+    clerkLocale = frFR;
+  }
+
+  if (locale !== routing.defaultLocale) {
+    signInUrl = `/${locale}${signInUrl}`;
+    signUpUrl = `/${locale}${signUpUrl}`;
+    dashboardUrl = `/${locale}${dashboardUrl}`;
+    afterSignOutUrl = `/${locale}${afterSignOutUrl}`;
+  }
 
   if (!routing.locales.includes(locale)) {
     notFound();
   }
-
-  setRequestLocale(locale);
 
   // Verify the request with Arcjet
   if (Env.ARCJET_KEY) {
@@ -97,7 +114,16 @@ export default async function RootLayout(props: {
           messages={messages}
         >
           <MantineProvider>
-            {props.children}
+            <ClerkProvider
+              localization={clerkLocale}
+              signInUrl={signInUrl}
+              signUpUrl={signUpUrl}
+              signInFallbackRedirectUrl={dashboardUrl}
+              signUpFallbackRedirectUrl={dashboardUrl}
+              afterSignOutUrl={afterSignOutUrl}
+            >
+              {props.children}
+            </ClerkProvider>
             {/* <DemoBadge /> */}
           </MantineProvider>
         </NextIntlClientProvider>

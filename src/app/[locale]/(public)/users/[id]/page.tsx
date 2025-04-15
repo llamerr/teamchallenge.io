@@ -33,7 +33,7 @@ async function fetchUserById(id: string) {
             role: true,
           },
         },
-        // TODO: is that ok?
+        // TODO: is that deep nested tree ok?
         teams: {
           with: {
             team: {
