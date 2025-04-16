@@ -18,7 +18,7 @@ export const BaseTemplate = (props: {
     <AppShell
       header={{ height: 60 }}
       navbar={{
-        width: 300,
+        width: 0,
         breakpoint: 'sm',
         collapsed: { mobile: !opened },
       }}
