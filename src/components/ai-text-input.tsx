@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef } from 'react';
 
 type AITextInputProps = {
   name: string;
-  label: string;
+  label?: string;
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;

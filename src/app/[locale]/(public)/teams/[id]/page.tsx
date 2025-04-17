@@ -108,8 +108,9 @@ async function fetchTeam(id: string) {
   }
 }
 
-export default async function TeamDetailPage({ params }: { params: { id: string } }) {
-  const team = await fetchTeam(params.id);
+export default async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const team = await fetchTeam(id);
   console.log(team);
 
   if (!team) {
